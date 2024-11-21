@@ -9,5 +9,4 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:%s@localhost/hotel
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
 
-
 db = SQLAlchemy(app)

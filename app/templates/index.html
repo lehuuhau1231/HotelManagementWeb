@@ -1,8 +1,10 @@
 {% extends 'layout/base.html' %}
+
 {% block content %}
 <!-- Hero Section -->
 <section class="hero position-relative text-center text-white">
     <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Hotel Image" class="img-fluid">
+    <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
     <div class="position-absolute top-50 start-50 translate-middle w-100">
         <h1 class="display-4 fw-bold" style="margin-bottom: 10rem;">The Best Hotel</h1>
         <div class="d-flex justify-content-center row fs-4 w-100">
@@ -27,7 +29,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <button class="btn btn-primary mt-5" style="background: #03204C;">Check Availability</button>
+                <button class="btn btn-primary mt-5" style="background: #0C0F24;">Check Availability</button>
             </div>
         </div>
     </div>
