@@ -1,26 +1,60 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
-    <div class="login-image">
-        <img src="https://res.cloudinary.com/dndsrbf9s/image/upload/v1731984424/4bd6eb8619e6625fe568afdd8682c2ba_gknloh.jpg"
-             alt="image-cover" class="img-fluid">
-        <form action="" class="login-form text-center">
-            <h1 class="text-danger">Login</h1>
-            <div class="form-floating mb-3 mt-3">
-                <input type="text" class="form-control" id="email" placeholder="Enter email" name="email">
-                <label for="email">Email</label>
+<!-- Popup -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+    <!-- The Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ category }}</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    {{ message }}
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
-            <div class="form-floating mt-3 mb-3">
-                <input type="text" class="form-control" id="pwd" placeholder="Enter password" name="password">
-                <label for="pwd">Password</label>
-            </div>
-            <div>
-                <a href="#">Forgot Password</a>
-            </div>
-            <button type="button" class="btn btn-primary">Login</button>
-            <div>
-                <a href="#">Create new account</a>
-            </div>
-        </form>
+        </div>
     </div>
+<!-- End popup -->
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="login-image">
+    <img src="https://res.cloudinary.com/dndsrbf9s/image/upload/v1731984424/4bd6eb8619e6625fe568afdd8682c2ba_gknloh.jpg"
+         alt="image-cover">
+    <form method="post" action="/login" class="login-form text-center">
+        <h1>Login</h1>
+        <div class="form-floating mb-3 mt-3">
+            <input type="text" class="form-control" id="email" placeholder="Enter username" name="username">
+            <label for="email">User name</label>
+        </div>
+
+        <div class="form-floating mt-3 mb-3">
+            <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="password">
+            <label for="pwd">Password</label>
+        </div>
+
+        <div>
+            <a href="#">Forgot Password</a>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+        <div>
+            <a href="/register">Create new account</a>
+        </div>
+    </form>
+</div>
 {% endblock %}

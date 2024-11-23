@@ -1,9 +1,7 @@
 <header class="text-white fs-5">
     <nav class="navbar navbar-expand-lg navbar-dark" style="background: #0C0F24;">
         <div class="container-fluid">
-            <a class="navbar-brand p-0 m-0" href="/"><img src="{{ url_for('static', filename='images/logo.jpg') }}"
-                                                          alt="Hotel Image" class="img-fluid"
-                                                          style="height: 100px; width: auto;"></a>
+            <a class="navbar-brand text-black bg-white fs-1 logo fw-bold" href="/">Logo</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -18,12 +16,24 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login">Log In</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/register">Register</a>
-                    </li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <img src="{{ current_user.avatar }}" alt="avatar" width="50" style="border-radius: 10px">
+                                Hello {{ current_user.name }}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">Log In</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/register">Register</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
