@@ -1,1 +1,114 @@
 {% extends 'layout/base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero position-relative text-center text-white">
+    <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Hotel Image" class="img-fluid">
+    <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+    <div class="position-absolute top-50 start-50 translate-middle w-100">
+        <h1 class="display-4 fw-bold" style="margin-bottom: 10rem;">The Best Hotel</h1>
+        <div class="d-flex justify-content-center row fs-4 w-100">
+            <div class="col-auto">
+                <p class="mb-0 fs-1 mt-4">Reserve!</p>
+            </div>
+            <div class="col-auto">
+                <label for="check-in" class="form-label fw-bold">Check-in</label>
+                <input type="date" id="check-in" class="form-control">
+            </div>
+            <div class="col-auto">
+                <label for="check-out" class="form-label fw-bold">Check-out</label>
+                <input type="date" id="check-out" class="form-control">
+            </div>
+            <div class="col-auto">
+                <label for="rooms" class="form-label fw-bold">Rooms</label>
+                <select id="rooms" class="form-select">
+                    <option value="1">1 Room</option>
+                    <option value="2">2 Rooms</option>
+                    <option value="3">3 Rooms</option>
+                    <option value="4">4 Rooms</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary mt-5" style="background: #0C0F24;">Check Availability</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Rooms Section -->
+<section class="container my-5">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        <!-- Room Card 1 -->
+        <div class="col">
+            <div class="card text-white" style="background: #03204CA6;">
+                <img src="{{ url_for('static', filename='images/room1.jpg') }}" class="card-img-top" alt="Room Image">
+                <div class="card-body">
+                    <h5 class="card-title">Room Name - Room Type</h5>
+                    <p class="card-text">Information 1</p>
+                    <p class="card-text">Information 2</p>
+                    <p class="card-text">Information 3</p>
+                    <p class="fw-bold">Price: $100</p>
+                    <a href="#" class="btn btn-primary w-100 bg-white text-black">View Detail</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Room Card 2 -->
+        <div class="col">
+            <div class="card text-white" style="background: #03204CA6;">
+                <img src="{{ url_for('static', filename='images/room2.jpg') }}" class="card-img-top" alt="Room Image">
+                <div class="card-body">
+                    <h5 class="card-title">Room Name - Room Type</h5>
+                    <p class="card-text">Information 1</p>
+                    <p class="card-text">Information 2</p>
+                    <p class="card-text">Information 3</p>
+                    <p class="fw-bold">Price: $120</p>
+                    <a href="#" class="btn btn-primary w-100 bg-white text-black">View Detail</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Room Card 3 -->
+        <div class="col">
+            <div class="card text-white" style="background: #03204CA6;">
+                <img src="{{ url_for('static', filename='images/room3.jpg') }}" class="card-img-top" alt="Room Image">
+                <div class="card-body">
+                    <h5 class="card-title">Room Name - Room Type</h5>
+                    <p class="card-text">Information 1</p>
+                    <p class="card-text">Information 2</p>
+                    <p class="card-text">Information 3</p>
+                    <p class="fw-bold">Price: $150</p>
+                    <a href="#" class="btn btn-primary w-100 bg-white text-black">View Detail</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Room Card 4 -->
+        <div class="col">
+            <div class="card text-white" style="background: #03204CA6;">
+                <img src="{{ url_for('static', filename='images/room4.jpg') }}" class="card-img-top" alt="Room Image">
+                <div class="card-body">
+                    <h5 class="card-title">Room Name - Room Type</h5>
+                    <p class="card-text">Information 1</p>
+                    <p class="card-text">Information 2</p>
+                    <p class="card-text">Information 3</p>
+                    <p class="fw-bold">Price: $200</p>
+                    <a href="#" class="btn btn-primary w-100 bg-white text-black">View Detail</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pagination -->
+<div class="container my-4 ml-50">
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-end fw-bold">
+            <li class="page-item"><a class="page-link text-black" style="background: #D9D9D966;" href="/page1">1</a>
+            </li>
+            <li class="page-item"><a class="page-link text-black" style="background: #D9D9D966;" href="/page2">2</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+{% endblock %}

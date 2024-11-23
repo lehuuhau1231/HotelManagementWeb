@@ -1,7 +1,28 @@
-/*.navbar-nav{*/
-/*    display: flex;*/
-/*}*/
+a {
+    text-decoration: none;
+}
 
-/*.navbar-nav > .nav-item:last-child {*/
-/*    margin-left: auto;*/
-/*}*/
+.login-image {
+    position: relative;
+    height: 100vh;
+}
+
+.login-image > img {
+    width: 100vw;
+    height: 100vh;
+    opacity: 60%;
+}
+
+.login-form {
+    position: absolute;
+    top: 50%;
+    width: 50%;
+    transform: translate(50%, -50%);
+    background-color: #f8f7fa;
+    border-radius: 20px;
+    padding: 30px;
+}
+
+.login-form > .btn {
+    width: 100%;
+}
