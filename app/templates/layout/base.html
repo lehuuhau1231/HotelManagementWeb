@@ -11,7 +11,20 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
+<<<<<<< HEAD
     <link rel="stylesheet" href="static/css/style.css">
+=======
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var myModal = new bootstrap.Modal(document.getElementById('myModal'), {
+                backdrop: 'static', // Chặn click ra ngoài modal
+                keyboard: true      // Cho phép đóng bằng phím ESC
+            });
+            myModal.show();
+        });
+    </script>
+>>>>>>> 95bfdb3a4c965105a4c546c70483f201ba4a4b8d
 </head>
 <body>
 {% include 'layout/header.html' %}

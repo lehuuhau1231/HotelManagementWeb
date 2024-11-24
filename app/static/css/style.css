@@ -25,4 +25,12 @@ a {
 
 .login-form > .btn {
     width: 100%;
+<<<<<<< HEAD
+=======
+}
+
+.error-message {
+    text-align: left;
+    font-style: italic;
+>>>>>>> 95bfdb3a4c965105a4c546c70483f201ba4a4b8d
 }
