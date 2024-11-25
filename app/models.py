@@ -120,9 +120,6 @@ class Comment(Base):
 if __name__ == '__main__':
     with app.app_context():
         db.drop_all()
-<<<<<<< HEAD
-        # db.create_all()
-=======
         db.create_all()
         customer_type1 = CustomerType(type='domestic')
         customer_type2 = CustomerType(type='foreign')
@@ -146,4 +143,3 @@ if __name__ == '__main__':
 #     IDCard = Column(String(12), nullable=False, unique=True)
 #     role = Column(Enum(Role), default=Role.CUSTOMER)
 #     address = Column(String(100))
->>>>>>> 95bfdb3a4c965105a4c546c70483f201ba4a4b8d

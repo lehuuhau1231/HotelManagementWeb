@@ -1,16 +1,3 @@
-<<<<<<< HEAD
-[{
-    "Image": "cloudinary",
-    "NameRoom": "hello",
-    "Description": "Gì gì đó",
-    "Price": "$123"
-}, {
-    "Image": "cloudinary//",
-    "NameRoom": "olleh",
-    "Description": "Gì gì đó",
-    "Price": "$456"
-}]
-=======
 import hashlib
 from app.models import User
 from app import db
@@ -43,4 +30,3 @@ def add_user(name, username, password, email, phone, avatar, gender, identificat
 
 def existence_check(attribute ,value):
     return User.query.filter(getattr(User, attribute).__eq__(value)).first()
->>>>>>> 95bfdb3a4c965105a4c546c70483f201ba4a4b8d

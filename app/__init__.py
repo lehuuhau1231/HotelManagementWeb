@@ -14,9 +14,6 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 
-<<<<<<< HEAD
-db = SQLAlchemy(app)
-=======
 
 cloudinary.config(
     cloud_name = "dndsrbf9s",
@@ -24,4 +21,3 @@ cloudinary.config(
     api_secret = "_UlDjHd_T5WxNV0iZMMN9tGJuy0",
     secure=True
 )
->>>>>>> 95bfdb3a4c965105a4c546c70483f201ba4a4b8d

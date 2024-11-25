@@ -3,9 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.11" />
   </component>
-<<<<<<< HEAD
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11" project-jdk-type="Python SDK" />
-=======
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11 (HotelManagementWebApp-update)" project-jdk-type="Python SDK" />
->>>>>>> 95bfdb3a4c965105a4c546c70483f201ba4a4b8d
 </project>
