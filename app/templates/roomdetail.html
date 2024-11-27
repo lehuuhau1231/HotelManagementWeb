@@ -1,0 +1,68 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Room Details -->
+    <div class="row p-3 shadow-sm text-white" style="background: #687994;">
+        <div class="col-md-4">
+            <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Room Image" class="img-fluid rounded">
+        </div>
+        <div class="col-md-8 d-flex flex-column justify-content-between">
+            <h5>Room name - Room type</h5>
+            <p class="mb-1">Information: Room details</p>
+            <p class="mb-3">Price:</p>
+            <button class="btn align-self-end bg-white text-dark rounded-0"><a href="/booking" class="text-dark">BOOKING</a></button>
+        </div>
+    </div>
+
+    <!-- Divider -->
+    <hr class="my-4">
+
+    <!-- Comment Input Section -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex">
+            <input type="text" class="form-control me-2 rounded-0" placeholder="Input your comment" style="background: #D9D9D9;">
+            <button type="button" class="btn text-dark rounded-0" style="background: #D9D9D9;">Send</button>
+        </div>
+    </div>
+
+    <!-- Comment List -->
+    <div class="row">
+        <!-- Comment Item -->
+        <div class="col-12 mb-3">
+            <div class="d-flex align-items-start p-3 shadow-sm rounded-0" style="background: #D9D9D9;">
+                <img src="https://via.placeholder.com/50x50" alt="User Image" class="rounded-circle me-3">
+                <div class="flex-grow-1">
+                    <h6 class="mb-1">Username 1</h6>
+                    <p class="mb-1">Comment details</p>
+                    <small class="text-muted">Comment date dd/mm/yy</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comment Item -->
+        <div class="col-12 mb-3">
+            <div class="d-flex align-items-start p-3 shadow-sm rounded-0" style="background: #D9D9D9;">
+                <img src="https://via.placeholder.com/50x50" alt="User Image" class="rounded-circle me-3">
+                <div class="flex-grow-1">
+                    <h6 class="mb-1">Username 2</h6>
+                    <p class="mb-1">Comment details</p>
+                    <small class="text-muted">Comment date dd/mm/yy</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comment Item -->
+        <div class="col-12 mb-3">
+            <div class="d-flex align-items-start p-3 shadow-sm rounded-0" style="background: #D9D9D9;">
+                <img src="https://via.placeholder.com/50x50" alt="User Image" class="rounded-circle me-3">
+                <div class="flex-grow-1">
+                    <h6 class="mb-1">Username 3</h6>
+                    <p class="mb-1">Comment details</p>
+                    <small class="text-muted">Comment date dd/mm/yy</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

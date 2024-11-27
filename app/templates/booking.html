@@ -1,0 +1,81 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Room Details -->
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Room Image"
+                     class="card-img-top">
+                <div class="card-body text-white" style="background: #03204C9C;">
+                    <h5 class="card-title">Room name - Room type</h5>
+                    <p class="card-text">Information</p>
+                    <p class="card-text">Price</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Information -->
+        <div class="col-md-8 mb-5">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="p-3" style="background: #D9D9D9;">
+                        <h6>Customer 1:</h6>
+                        <div class="mb-2">
+                            <label for="name1" class="form-label">Name:</label>
+                            <input type="text" id="name1" class="form-control">
+                        </div>
+                        <div class="mb-2">
+                            <label for="id1" class="form-label">Identification number:</label>
+                            <input type="text" id="id1" class="form-control">
+                        </div>
+                        <div class="mb-2">
+                            <label for="type1" class="form-label">Customer type:</label>
+                            <input type="text" id="type1" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="p-3" style="background: #D9D9D9;">
+                        <h6>Customer 2:</h6>
+                        <div class="mb-2">
+                            <label for="name2" class="form-label">Name:</label>
+                            <input type="text" id="name2" class="form-control">
+                        </div>
+                        <div class="mb-2">
+                            <label for="id2" class="form-label">Identification number:</label>
+                            <input type="text" id="id2" class="form-control">
+                        </div>
+                        <div class="mb-2">
+                            <label for="type2" class="form-label">Customer type:</label>
+                            <input type="text" id="type2" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Customer Button -->
+            <div class="mb-3 text-end">
+                <button class="btn rounded-0" style="background: #D9D9D9;">+ Add customer</button>
+            </div>
+
+            <!-- Check-in/Check-out and Booking -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="checkin" class="form-label">Check-in:</label>
+                    <input type="date" id="checkin" class="form-control rounded-0 text-center" style="background: #D9D9D9;">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="checkout" class="form-label">Check-out:</label>
+                    <input type="date" id="checkout" class="form-control rounded-0 text-center"
+                           style="background: #D9D9D9;">
+                </div>
+            </div>
+            <div class="text-end">
+                <button class="btn rounded-0" style="background: #D9D9D9">BOOK</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

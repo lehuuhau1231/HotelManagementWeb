@@ -89,5 +89,35 @@ def load_user(user_id):
     return dao.get_user_by_id(user_id)
 
 
+@app.route('/roomdetail')
+def roomdetail():
+    return render_template('roomdetail.html')
+
+
+@app.route('/booking')
+def booking():
+    return render_template('booking.html')
+
+
+@app.route('/nvxemphong')
+def nvxemphong():
+    return render_template('nvxemphong.html')
+
+
+@app.route('/nvbook')
+def nvbook():
+    return render_template('nvbook.html')
+
+
+@app.route('/nvcheckin')
+def nvcheckin():
+    return render_template('nvcheckin.html')
+
+
+@app.route('/nvcheckout')
+def nvcheckout():
+    return render_template('nvcheckout.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
