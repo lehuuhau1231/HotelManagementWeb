@@ -3,7 +3,7 @@ from datetime import datetime
 import hashlib
 from cloudinary.utils import unique
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Enum, ForeignKey, text
-from sqlalchemy.orm import Relationship
+from sqlalchemy.orm import relationship
 from enum import Enum as RoleEnum
 from app import db, app
 from flask_login import UserMixin
@@ -22,8 +22,8 @@ class Base(db.Model):
 
 class CustomerType(Base):
     type = Column(String(10))
-    user = Relationship('User', backref='customer_type', lazy=True)
-    customer_regulation = Relationship('CustomerRegulation', backref='customer_type', lazy=True)
+    user = relationship('User', backref='customer_type', lazy=True)
+    customer_regulation = relationship('CustomerRegulation', backref='customer_type', lazy=True)
 
 
 class User(Base, UserMixin):
@@ -37,30 +37,30 @@ class User(Base, UserMixin):
     gender = Column(String(6), nullable=False)
     identification_card = Column(String(12), nullable=False, unique=True)
     role = Column(Enum(Role), default=Role.CUSTOMER)
-    room = Relationship('Room', backref='user', lazy=True)
-    room_regulation = Relationship('RoomRegulation', backref='user', lazy=True)
-    extra_charge_regulation = Relationship('ExtraChargeRegulation', backref='user', lazy=True)
-    customer_regulation = Relationship('CustomerRegulation', backref='user', lazy=True)
-    room_reservation_form = Relationship('RoomReservationForm', backref='user', lazy=True)
-    bill = Relationship('Bill', backref='user', lazy=True)
-    room_rental_from = Relationship('RoomRentalForm', backref='user', lazy=True)
-    comment = Relationship('Comment', backref='user', lazy=True, cascade='all, delete-orphan')
+    room = relationship('Room', backref='user', lazy=True)
+    room_regulation = relationship('RoomRegulation', backref='user', lazy=True)
+    extra_charge_regulation = relationship('ExtraChargeRegulation', backref='user', lazy=True)
+    customer_regulation = relationship('CustomerRegulation', backref='user', lazy=True)
+    room_reservation_form = relationship('RoomReservationForm', backref='user', lazy=True)
+    bill = relationship('Bill', backref='user', lazy=True)
+    room_rental_from = relationship('RoomRentalForm', backref='user', lazy=True)
+    comment = relationship('Comment', backref='user', cascade='all, delete-orphan', lazy=True)
     customer_type_id = Column(Integer, ForeignKey(CustomerType.id), nullable=False, default=1)
 
 
 class RoomType(Base):
     name = Column(String(50), nullable=False, unique=True)
-    room = Relationship('Room', backref='room_type', lazy=True)
-    room_regulation = Relationship('RoomRegulation', back_populates='room_type', uselist=False, cascade='all, delete-orphan')
+    room = relationship('Room', backref='room_type', lazy=True)
+    room_regulation = relationship('RoomRegulation', backref='room_type', uselist=False)
 
 
 class Room(Base):
     name = Column(String(50), nullable=False)
     image = Column(String(100))
     price = Column(Float, nullable=False)
-    room_reservation_from = Relationship('RoomReservationForm', backref='room', lazy=True)
-    room_rental_from = Relationship('RoomRentalForm', backref='room', lazy=True)
-    comment = Relationship('Comment', backref='room', lazy=True)
+    room_reservation_from = relationship('RoomReservationForm', backref='room', lazy=True)
+    room_rental_from = relationship('RoomRentalForm', backref='room', lazy=True)
+    comment = relationship('Comment', backref='room', lazy=True)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     room_type_id = Column(Integer, ForeignKey(RoomType.id), nullable=False)
 
@@ -69,14 +69,14 @@ class RoomRegulation(Base):
     number_of_guests = Column(Integer, nullable=False)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     room_type_id = Column(Integer, ForeignKey(RoomType.id), unique=True, nullable=False)
-    room_type = Relationship('RoomType', back_populates='room_regulation')
-    extra_charge_regulation = Relationship('ExtraChargeRegulation', backref='room', lazy=True)
+    extra_charge_regulation = relationship('ExtraChargeRegulation', backref='room', cascade='all, delete-orphan',
+                                           lazy=True)
 
 
 class ExtraChargeRegulation(Base):
     rate = Column(Float, nullable=False)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
-    room_regulation_id = Column(Integer, ForeignKey(RoomRegulation.id), nullable=False, unique=True)
+    room_regulation_id = Column(Integer, ForeignKey(RoomRegulation.id, ondelete='CASCADE'), nullable=False, unique=True)
 
 
 class CustomerRegulation(Base):
@@ -98,7 +98,7 @@ class Bill(Base):
     total_amount = Column(Float, nullable=False)
     creation_date = Column(DateTime, nullable=False)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
-    room_rental_from = Relationship('RoomRentalForm', backref='bill', lazy=True)
+    room_rental_from = relationship('RoomRentalForm', backref='bill', cascade='all, delete-orphan', lazy=True)
 
 
 class RoomRentalForm(Base):
@@ -107,7 +107,7 @@ class RoomRentalForm(Base):
     deposit = Column(Float, nullable=False)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
-    bill_id = Column(Integer, ForeignKey(Bill.id), nullable=False, unique=True)
+    bill_id = Column(Integer, ForeignKey(Bill.id, ondelete='CASCADE'), nullable=False, unique=True)
 
 
 class Comment(Base):
@@ -128,10 +128,25 @@ if __name__ == '__main__':
         db.session.add_all([customer_type1, customer_type2])
         db.session.commit()
         customer_type = db.session.query(CustomerType).filter(CustomerType.type.__eq__('domestic')).first()
-        user1 = User(name='Lê Hữu Hậu', username='lehuuhau', password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()), email='lehuuhau1231@gmail.com', phone='0378151028',
-                gender=1, identification_card='06424016252', customer_type_id=customer_type.id)
+        user1 = User(name='Lê Hữu Hậu', username='lehuuhau',
+                     password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()), email='lehuuhau1231@gmail.com',
+                     phone='0378151028',
+                     gender=1, identification_card='06424016252', customer_type_id=customer_type.id)
         db.session.add(user1)
         db.session.commit()
+
+        #         ==============================Thêm loại phòng======================================
+
+        room_type_single = RoomType(type='Single Bedroom')
+        room_type_twin = RoomType(type='Twin Bedroom')
+        room_type_double = RoomType(type='Double Bedroom')
+
+        db.session.add_all([room_type_single, room_type_twin, room_type_double])
+        db.session.commit()
+
+        #         ==============================Thêm phòng======================================
+
+        room1 = Room()
 # name = Column(String(50), nullable=False)
 #     username = Column(String(50), nullable=False, unique=True)
 #     password = Column(String(50), nullable=False)

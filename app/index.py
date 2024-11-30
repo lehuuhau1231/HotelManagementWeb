@@ -1,4 +1,5 @@
 import re
+from datetime import date
 from warnings import catch_warnings
 
 from flask import render_template, request, redirect, flash, session
@@ -10,7 +11,9 @@ import random
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    date_today = date.today().strftime('%Y-%m-%d')
+    print(date_today)
+    return render_template('index.html', date_today=date_today)
 
 
 @app.route('/login', methods=['GET', 'POST'])
