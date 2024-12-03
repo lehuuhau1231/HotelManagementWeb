@@ -1,65 +1,71 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
-<!-- Popup -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-{% for category, message in messages %}
-<!-- The Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
+    <!-- Popup -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <!-- The Modal -->
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
 
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title">{{ category }}</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                                <h4 class="modal-title">{{ category }}</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="modal-body">
+                                {{ message }}
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- End popup -->
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="login-image">
+        <img src="https://res.cloudinary.com/dndsrbf9s/image/upload/v1731984424/4bd6eb8619e6625fe568afdd8682c2ba_gknloh.jpg"
+             alt="image-cover" class="img-fluid">
+        <form method="post" action="/login" class="login-form text-center">
+            <h1 class="text-danger">Login</h1>
+            {% if err_message %}
+                <div class="alert alert-danger">
+                    <strong>ERROR!</strong> {{ err_message }}
+                </div>
+            {% endif %}
+            <select class="form-select mb-3 mt-3">
+                <option>Customer</option>
+                <option>Employee</option>
+                <option>Administrator</option>
+            </select>
+            <div class="form-floating mb-3 mt-3">
+                <input type="text" class="form-control" id="email" placeholder="Enter username" name="username">
+                <label for="email">User name</label>
             </div>
 
-            <!-- Modal body -->
-            <div class="modal-body">
-                {{ message }}
+            <div class="form-floating mt-3 mb-3">
+                <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="password">
+                <label for="pwd">Password</label>
             </div>
 
-            <!-- Modal footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            <div class="mb-2">
+                <a href="/forgotPassword">Forgot Password</a>
             </div>
-        </div>
+            <button type="submit" class="btn btn-primary mb-2">Login</button>
+            <div>
+                <a href="/register">Create new account</a>
+            </div>
+        </form>
     </div>
-</div>
-<!-- End popup -->
-{% endfor %}
-{% endif %}
-{% endwith %}
-
-<div class="login-image">
-    <img src="https://res.cloudinary.com/dndsrbf9s/image/upload/v1731984424/4bd6eb8619e6625fe568afdd8682c2ba_gknloh.jpg"
-         alt="image-cover" class="img-fluid">
-    <form method="post" action="/login" class="login-form text-center">
-        <h1 class="text-danger">Login</h1>
-        <select class="form-select mb-3 mt-3">
-            <option>Customer</option>
-            <option>Employee</option>
-            <option>Administrator</option>
-        </select>
-        <div class="form-floating mb-3 mt-3">
-            <input type="text" class="form-control" id="email" placeholder="Enter username" name="username">
-            <label for="email">User name</label>
-        </div>
-
-        <div class="form-floating mt-3 mb-3">
-            <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="password">
-            <label for="pwd">Password</label>
-        </div>
-
-        <div class="mb-2">
-            <a href="#">Forgot Password</a>
-        </div>
-        <button type="submit" class="btn btn-primary mb-2">Login</button>
-        <div>
-            <a href="/register">Create new account</a>
-        </div>
-    </form>
-</div>
 {% endblock %}

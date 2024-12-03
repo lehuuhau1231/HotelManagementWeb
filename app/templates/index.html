@@ -16,21 +16,20 @@
             <div class="col-auto">
                 <label for="check-in" class="form-label fw-Arial" style="font-size: 30px;">Check-in</label>
                 <input type="date" id="check-in" class="form-control rounded-0"
-                       style="height: 60px; font-size: 23px;">
+                       style="height: 60px; font-size: 23px;" min="{{ date_today }}" value="{{ date_today }}">
             </div>
             <div class="col-auto">
                 <label for="check-out" class="form-label fw-Arial" style="font-size: 30px;">Check-out</label>
-                <input type="date" id="check-out" class="form-control rounded-0"
-                       style="height: 60px; font-size: 23px;">
+                <input type="date"  id="check-out" class="form-control rounded-0"
+                       style="height: 60px; font-size: 23px;" min="{{ date_today }}">
             </div>
             <div class="col-auto">
                 <label for="rooms" class="form-label fw-Arial" style="font-size: 30px;">Rooms</label>
                 <select id="rooms" class="form-select rounded-0"
                         style="height: 60px; font-size: 23px;">
-                    <option value="1">1 Room</option>
-                    <option value="2">2 Rooms</option>
-                    <option value="3">3 Rooms</option>
-                    <option value="4">4 Rooms</option>
+                    <option value="1">Single Bedroom</option>
+                    <option value="2">Twin Bedroom</option>
+                    <option value="3">Double Bedroom</option>
                 </select>
             </div>
             <div class="col-auto">

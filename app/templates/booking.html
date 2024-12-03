@@ -1,6 +1,24 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
+<!-- Hero Section -->
+<section class="hero position-relative text-center text-white" style="height: 800px; overflow: hidden;">
+    <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Hotel Image" class="img-fluid">
+    <div class="position-absolute top-0 start-0 w-100 h-95 bg-dark opacity-50"></div>
+    <div class="position-absolute top-50 start-50 translate-middle w-100">
+        <h2 class="fw-bold" style="font-size: 4rem; font-family: 'Arial', sans-serif; margin-bottom: 1rem;">Welcome to
+            LMAO</h2>
+        <h1 class="display-4 fw-bold" style="font-size: 3rem; font-family: 'Arial', sans-serif; margin-bottom: 10rem;">
+            The Best Hotel</h1>
+        <div class="d-flex justify-content-center row fs-4 w-100">
+            <div class="col-auto">
+                <p class="mb-0"
+                    style="height: 70px; line-height: 150px; font-size: 95px; font-weight: Arial;">Booking</p>
+            </div>
+        </div>
+    </div>
+</section>
+
 <div class="container mt-5">
     <div class="row">
         <!-- Room Details -->
