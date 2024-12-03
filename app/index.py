@@ -169,22 +169,27 @@ def booking():
 
 @app.route('/nvxemphong')
 def nvxemphong():
-    return render_template('nvxemphong.html')
+    return render_template('employees/nvxemphong.html')
 
 
 @app.route('/nvbook')
 def nvbook():
-    return render_template('nvbook.html')
+    return render_template('employees/nvbook.html')
 
 
 @app.route('/nvcheckin')
 def nvcheckin():
-    return render_template('nvcheckin.html')
+    return render_template('employees/nvcheckin.html')
 
 
 @app.route('/nvcheckout')
 def nvcheckout():
-    return render_template('nvcheckout.html')
+    return render_template('employees/nvcheckout.html')
+
+
+@app.route('/account')
+def account():
+    return render_template('account.html')
 
 
 if __name__ == '__main__':
