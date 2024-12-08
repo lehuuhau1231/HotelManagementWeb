@@ -1,7 +1,6 @@
 import re
 from datetime import date
 from warnings import catch_warnings
-
 from flask import render_template, request, redirect, flash, session
 from app import app, dao, login_manager
 from flask_login import login_user, logout_user

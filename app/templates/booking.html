@@ -29,68 +29,89 @@
                     <p class="card-text">Price</p>
                 </div>
             </div>
-        </div>
-
-        <!-- Customer Information -->
-        <div class="col-md-8 mb-5">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <div class="p-3" style="background: #D9D9D9;">
-                        <h6>Customer 1:</h6>
-                        <div class="mb-2">
-                            <label for="name1" class="form-label">Name:</label>
-                            <input type="text" id="name1" class="form-control">
-                        </div>
-                        <div class="mb-2">
-                            <label for="id1" class="form-label">Identification number:</label>
-                            <input type="text" id="id1" class="form-control">
-                        </div>
-                        <div class="mb-2">
-                            <label for="type1" class="form-label">Customer type:</label>
-                            <input type="text" id="type1" class="form-control">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <div class="p-3" style="background: #D9D9D9;">
-                        <h6>Customer 2:</h6>
-                        <div class="mb-2">
-                            <label for="name2" class="form-label">Name:</label>
-                            <input type="text" id="name2" class="form-control">
-                        </div>
-                        <div class="mb-2">
-                            <label for="id2" class="form-label">Identification number:</label>
-                            <input type="text" id="id2" class="form-control">
-                        </div>
-                        <div class="mb-2">
-                            <label for="type2" class="form-label">Customer type:</label>
-                            <input type="text" id="type2" class="form-control">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add Customer Button -->
-            <div class="mb-3 text-end">
-                <button class="btn rounded-0" style="background: #D9D9D9;">+ Add customer</button>
-            </div>
-
-            <!-- Check-in/Check-out and Booking -->
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="checkin" class="form-label">Check-in:</label>
-                    <input type="date" id="checkin" class="form-control rounded-0 text-center" style="background: #D9D9D9;">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="checkout" class="form-label">Check-out:</label>
-                    <input type="date" id="checkout" class="form-control rounded-0 text-center"
-                           style="background: #D9D9D9;">
-                </div>
-            </div>
-            <div class="text-end">
-                <button class="btn rounded-0" style="background: #D9D9D9">BOOK</button>
-            </div>
+    <div class="info" style="display: none">
+        <div class="alert alert-info">
+            <strong>Info!</strong> A room can accommodate a maximum of 3 people.
         </div>
     </div>
-</div>
+    <form action="/bill" method="post" class="container mt-5">
+        <div class="row">
+            <!-- Room Details -->
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{{ room.image }}" alt="Room Image"
+                         class="card-img-top">
+                    <div class="card-body text-white" style="background: #03204C9C;">
+                        <h5 class="card-title">{{ room.name }}</h5>
+                        <p class="card-text">Room Type: {{ room.room_type.name }}</p>
+                        <p class="fw-bold">Price: {{ "{:,.0f}".format(room.price) }}$</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Information -->
+            <div class="col-md-8 mb-5">
+                <div class="row list-customer">
+                    <div class="col-md-6 mb-3 customer-item">
+                        <div class="p-3" style="background: #D9D9D9;">
+                            <h6>Customer 1:</h6>
+
+                            <div class="mb-2">
+                                <label for="name" class="form-label">Name:</label>
+                                <input type="text" id="name" class="form-control" name="name" value="{{ name }}"
+                                       readonly>
+                            </div>
+                            <div class="mb-2">
+                                <label for="id" class="form-label">Identification number:</label>
+                                <input type="text" id="id" class="form-control" name="identification_card"
+                                       value="{{ identification_card }}"
+                                       readonly>
+                            </div>
+                            <div style="text-align: left">
+                                <p>Chosse Customer Type</p>
+                                <select id="type" class="form-select rounded-0" name="customer_type"
+                                        style="height: 40px;" disabled>
+                                    <option {% if customer_type == 1 %} selected {% endif %}>Domestic</option>
+                                    <option {% if customer_type == 2 %} selected {% endif %}>Foreign</option>
+                                </select>
+                                <input type="hidden" name="customer_type"
+                                        {% if customer_type == 1 %}
+                                            value="Domestic"
+                                        {% else %}
+                                            value="Foreign"
+                                        {% endif %}>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Customer Button -->
+                <div class="mb-3 text-end">
+                    <button class="btn rounded-0" style="background: #D9D9D9;">
+                        <a href="javascripts:;" onclick="addCustomer()">+ Add customer</a>
+                    </button>
+                </div>
+
+                <!-- Check-in/Check-out and Booking -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="checkin" class="form-label">Check-in:</label>
+                        <input type="date" id="checkin" class="form-control rounded-0 text-center"
+                               style="background: #D9D9D9;" min="{{ date_today }}" value="{{ date_today }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="checkout" class="form-label">Check-out:</label>
+                        <input type="date" id="checkout" class="form-control rounded-0 text-center"
+                               style="background: #D9D9D9; " min="{{ date_today }}" required>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn rounded-0" style="background: #D9D9D9">BOOK</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="../static/js/main.js"></script>
 {% endblock %}

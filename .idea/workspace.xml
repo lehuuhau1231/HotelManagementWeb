@@ -6,6 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="d590f065-74a2-4aed-8313-dae8b2c2271d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/app/templates/register.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/register.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/templates/account.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/index.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/index.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/layout/footer.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/layout/footer.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/nvbook.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/employees/nvbook.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/nvcheckin.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/employees/nvcheckin.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/nvcheckout.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/employees/nvcheckout.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/nvxemphong.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/employees/nvxemphong.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,10 +60,19 @@
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "#2 on Lam",
     "last_opened_file_path": "C:/Users/Administrator/OneDrive - TRƯỜNG ĐẠI HỌC MỞ TP.HCM/Desktop/học IT/CNPM/HotelManagementWeb"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Python.index.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Administrator/OneDrive - TRƯỜNG ĐẠI HỌC MỞ TP.HCM/Desktop/học IT/CNPM/HotelManagementWeb&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Administrator\OneDrive - TRƯỜNG ĐẠI HỌC MỞ TP.HCM\Desktop\học IT\CNPM\HotelManagementWeb\app\templates\employees" />
       <recent name="C:\Users\Administrator\OneDrive - TRƯỜNG ĐẠI HỌC MỞ TP.HCM\Desktop\học IT\CNPM\HotelManagementWeb\app\templates" />
       <recent name="C:\Users\Administrator\OneDrive - TRƯỜNG ĐẠI HỌC MỞ TP.HCM\Desktop\học IT\CNPM\HotelManagementWeb\app\templates\employees" />
     </key>
@@ -73,6 +91,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/app/index.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />

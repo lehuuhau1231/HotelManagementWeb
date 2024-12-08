@@ -61,6 +61,7 @@ class Room(Base):
     room_reservation_from = relationship('RoomReservationForm', backref='room', lazy=True)
     room_rental_from = relationship('RoomRentalForm', backref='room', lazy=True)
     comment = relationship('Comment', backref='room', lazy=True)
+    comment = relationship('Comment', backref='room', cascade='all, delete-orphan', lazy=True)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     room_type_id = Column(Integer, ForeignKey(RoomType.id), nullable=False)
 
@@ -71,6 +72,7 @@ class RoomRegulation(Base):
     room_type_id = Column(Integer, ForeignKey(RoomType.id), unique=True, nullable=False)
     extra_charge_regulation = relationship('ExtraChargeRegulation', backref='room', cascade='all, delete-orphan',
                                            lazy=True)
+    extra_charge_regulation = relationship('ExtraChargeRegulation', backref='room_regulation', cascade='all, delete-orphan',lazy=True)
 
 
 class ExtraChargeRegulation(Base):
@@ -114,7 +116,7 @@ class Comment(Base):
     content = Column(String(1000), nullable=False)
     creation_date = Column(DateTime, default=datetime.now())
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
-    room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
+    room_id = Column(Integer, ForeignKey(Room.id, ondelete='CASCADE'), nullable=False)
 
 
 if __name__ == '__main__':
@@ -145,8 +147,57 @@ if __name__ == '__main__':
         db.session.commit()
 
         #         ==============================Thêm phòng======================================
-
+        
         room1 = Room()
+        admin = User.query.filter(User.role.__eq__(Role.ADMIN)).first()
+        rooms = [
+            {
+                'name': 'Deluxe Room(River view)',
+                'image':'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/singleViewRiver1_xldkkp.jpg',
+                'price': 100,
+                'user_id': admin.id,
+                'room_type_id': room_type_single.id
+            },
+            {
+                'name': 'Executive Room(City view)',
+                'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewRiver_rtsum2.jpg',
+                'price': 200,
+                'user_id': admin.id,
+                'room_type_id': room_type_twin.id
+            },
+            {
+                'name': 'President Room(River view)',
+                'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewRiver_rtsum2.jpg',
+                'price': 500,
+                'user_id': admin.id,
+                'room_type_id': room_type_double.id
+            },
+            {
+                'name': 'Deluxe Room(City view)',
+                'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/singleViewCity1_yrewg4.jpg',
+                'price': 100,
+                'user_id': admin.id,
+                'room_type_id': room_type_single.id
+            },
+            {
+                'name': 'Executive Room(River view)',
+                'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/twinViewRiver1_kn87ab.jpg',
+                'price': 200,
+                'user_id': admin.id,
+                'room_type_id': room_type_twin.id
+            },
+            {
+                'name': 'President Room(City view)',
+                'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewCity1_wavkyb.jpg',
+                'price': 500,
+                'user_id': admin.id,
+                'room_type_id': room_type_double.id
+            }
+        ]
+
+        for room in rooms:
+            db.session.add(Room(**room))
+        db.session.commit()
 # name = Column(String(50), nullable=False)
 #     username = Column(String(50), nullable=False, unique=True)
 #     password = Column(String(50), nullable=False)

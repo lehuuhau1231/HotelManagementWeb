@@ -36,95 +36,64 @@
                 <button class="btn mt-5 text-white rounded-0" style="background: #0C0F24; height: 70px; font-size: 30px;">Check Availability</button>
             </div>
         </div>
+    </section>
+
+
+    <!-- Rooms Section -->
+    <section class="container my-5">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 save-date">
+            <!-- Room Card -->
+            {% for room in rooms %}
+                <div class="col">
+                    <div class="card text-white" style="background: #042453; border-radius:  0 0 15px 15px;">
+                        <img src="{{ room.image }}" class="card-img-top"
+                             alt="Room Image"
+                             style="border-top-left-radius: 0px; border-top-right-radius:  0 0 15px 15px;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ room.name }}</h5>
+                            <p class="card-text">Room Type: {{ room.room_type.name }}</p>
+                            <p class="fw-bold">Price: {{ "{:,.0f}".format(room.price) }}$</p>
+                            <div class="d-flex justify-content-end ">
+                                <a href="/room-detail/?room_id={{ room.id }}" class="btn btn-primary w-50 bg-white text-black"
+                                   style="border-radius: 60px;" class="view""">View Detail</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Pagination -->
+    <div class="container my-4 ml-50">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-end fw-bold">
+                {% for page_index in range(1, count_room + 1) %}
+                    <li class="page-item"><a class="page-link text-black" style="background: #D9D9D966;"
+                                             href="/?page={{ page_index }}">{{ page_index }}</a></li>
+                {% endfor %}
+            </ul>
+        </nav>
     </div>
-</section>
 
-<!-- Rooms Section -->
-<section class="container my-5">
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-        <!-- Room Card 1 -->
-        <div class="col">
-            <div class="card text-white" style="background: #042453; border-radius:  0 0 15px 15px;">
-                <img src="{{ url_for('static', filename='images/room1.jpg') }}" class="card-img-top" alt="Room Image"
-                     style="border-top-left-radius: 0px; border-top-right-radius:  0 0 15px 15px;">
-                <div class="card-body" >
-                    <h5 class="card-title">Room Name - Room Type</h5>
-                    <p class="card-text">Information 1</p>
-                    <p class="card-text">Information 2</p>
-                    <p class="card-text">Information 3</p>
-                    <p class="fw-bold">Price: $100</p>
-                   <div class="d-flex justify-content-end "  >
-                        <a href="/roomdetail" class="btn btn-primary w-50 bg-white text-black" style="border-radius: 60px;">View Detail</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Room Card 2 -->
-        <div class="col">
-            <div class="card text-white" style="background: #6497B2; border-radius:  0 0 15px 15px;">
-                <img src="{{ url_for('static', filename='images/room2.jpg') }}" class="card-img-top" alt="Room Image"
-                     style="border-top-left-radius: 0px; border-top-right-radius: 0px;">
-                <div class="card-body">
-                    <h5 class="card-title">Room Name - Room Type</h5>
-                    <p class="card-text">Information 1</p>
-                    <p class="card-text">Information 2</p>
-                    <p class="card-text">Information 3</p>
-                    <p class="fw-bold">Price: $120</p>
-                    <div class="d-flex justify-content-end">
-                        <a href="/roomdetail" class="btn btn-primary w-50 bg-white text-black" style="border-radius: 60px;">View Detail</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Room Card 3 -->
-        <div class="col">
-            <div class="card text-white" style="background: #042453; border-radius:  0 0 15px 15px;">
-                <img src="{{ url_for('static', filename='images/room3.jpg') }}" class="card-img-top" alt="Room Image"
-                     style="border-top-left-radius: 0px; border-top-right-radius: 0px;">
-                <div class="card-body">
-                    <h5 class="card-title">Room Name - Room Type</h5>
-                    <p class="card-text">Information 1</p>
-                    <p class="card-text">Information 2</p>
-                    <p class="card-text">Information 3</p>
-                    <p class="fw-bold">Price: $150</p>
-                    <div class="d-flex justify-content-end">
-                        <a href="/roomdetail" class="btn btn-primary w-50 bg-white text-black" style="border-radius: 60px;">View Detail</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Room Card 4 -->
-        <div class="col">
-            <div class="card text-white" style="background: #6497B2; border-radius: 0 0 15px 15px;">
-                <img src="{{ url_for('static', filename='images/room4.jpg') }}" class="card-img-top" alt="Room Image"
-                     style="border-top-left-radius: 0px; border-top-right-radius: 0px;">
-                <div class="card-body">
-                    <h5 class="card-title">Room Name - Room Type</h5>
-                    <p class="card-text">Information 1</p>
-                    <p class="card-text">Information 2</p>
-                    <p class="card-text">Information 3</p>
-                    <p class="fw-bold">Price: $200</p>
-                    <div class="d-flex justify-content-end">
-                        <a href="/roomdetail" class="btn btn-primary w-50 bg-white text-black" style="border-radius: 60px;">View Detail</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Pagination -->
-<div class="container my-4 ml-50">
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-end fw-bold">
-            <li class="page-item"><a class="page-link text-black" style="background: #D9D9D966;" href="/page1">1</a>
-            </li>
-            <li class="page-item"><a class="page-link text-black" style="background: #D9D9D966;" href="/page2">2</a>
-            </li>
-        </ul>
-    </nav>
-</div>
+{#    <script>#}
+{#        let saveDate = document.querySelector(".save-date")#}
+{#        saveDate.addEventListener('click', function (event) {#}
+{#            if(event.target.classList.contains("view")){#}
+{#                let checkin = document.getElementById("check-in")#}
+{#                let checkout = document.getElementById("check-out")#}
+{##}
+{#                fetch("/api/save_date", {#}
+{#                    method: 'POST',#}
+{#                    headers: {#}
+{#                        'Content-Type': 'application/json'#}
+{#                    },#}
+{#                    body: JSON.stringify({#}
+{#                        "checkin": checkin,#}
+{#                        "checkout": checkout#}
+{#                    })#}
+{#                })            }#}
+{##}
+{#        })#}
+{#    </script>#}
 {% endblock %}
