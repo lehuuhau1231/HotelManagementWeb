@@ -60,6 +60,7 @@ class Room(Base):
     price = Column(Float, nullable=False)
     room_reservation_from = relationship('RoomReservationForm', backref='room', lazy=True)
     room_rental_from = relationship('RoomRentalForm', backref='room', lazy=True)
+    comment = relationship('Comment', backref='room', lazy=True)
     comment = relationship('Comment', backref='room', cascade='all, delete-orphan', lazy=True)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     room_type_id = Column(Integer, ForeignKey(RoomType.id), nullable=False)
@@ -69,6 +70,8 @@ class RoomRegulation(Base):
     number_of_guests = Column(Integer, nullable=False)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     room_type_id = Column(Integer, ForeignKey(RoomType.id), unique=True, nullable=False)
+    extra_charge_regulation = relationship('ExtraChargeRegulation', backref='room', cascade='all, delete-orphan',
+                                           lazy=True)
     extra_charge_regulation = relationship('ExtraChargeRegulation', backref='room_regulation', cascade='all, delete-orphan',lazy=True)
 
 
@@ -144,6 +147,8 @@ if __name__ == '__main__':
         db.session.commit()
 
         #         ==============================Thêm phòng======================================
+        
+        room1 = Room()
         admin = User.query.filter(User.role.__eq__(Role.ADMIN)).first()
         rooms = [
             {

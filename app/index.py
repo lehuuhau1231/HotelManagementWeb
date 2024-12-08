@@ -1,6 +1,6 @@
 import re
+from datetime import date
 from warnings import catch_warnings
-
 from flask import render_template, request, redirect, flash, session
 from app import app, dao, login_manager
 from flask_login import login_user, logout_user
@@ -10,7 +10,9 @@ import random
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    date_today = date.today().strftime('%Y-%m-%d')
+    print(date_today)
+    return render_template('index.html', date_today=date_today)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -166,22 +168,32 @@ def booking():
 
 @app.route('/nvxemphong')
 def nvxemphong():
-    return render_template('nvxemphong.html')
+    return render_template('employees/nvxemphong.html')
 
 
 @app.route('/nvbook')
 def nvbook():
-    return render_template('nvbook.html')
+    return render_template('employees/nvbook.html')
 
 
 @app.route('/nvcheckin')
 def nvcheckin():
-    return render_template('nvcheckin.html')
+    return render_template('employees/nvcheckin.html')
 
 
 @app.route('/nvcheckout')
 def nvcheckout():
-    return render_template('nvcheckout.html')
+    return render_template('employees/nvcheckout.html')
+
+
+@app.route('/account')
+def account():
+    return render_template('account.html')
+
+
+@app.route('/reservation')
+def reservation():
+    return render_template('reservation.html')
 
 
 if __name__ == '__main__':

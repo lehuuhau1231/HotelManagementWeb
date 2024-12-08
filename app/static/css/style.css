@@ -2,29 +2,40 @@ a {
     text-decoration: none;
 }
 
-.login-image {
-    position: relative;
-    height: 100vh;
+.error-message {
+    text-align: left;
+    font-style: italic;
 }
 
-.login-image > img {
-    width: 100vw;
-    height: 100vh;
-    opacity: 60%;
+.login-container {
+            height: 70vh;
+            background: url('https://res.cloudinary.com/dndsrbf9s/image/upload/v1731984424/4bd6eb8619e6625fe568afdd8682c2ba_gknloh.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
 }
-
-.login-form {
-    position: absolute;
-    top: 50%;
-    width: 50%;
-    transform: translate(50%, -50%);
-    background-color: #f8f7fa;
-    border-radius: 20px;
-    padding: 30px;
+.login-card {
+            background-color: rgba(14, 16, 37, 0.7);
+            border-radius: 15px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            color: white;
 }
-
-.login-form > .btn {
-    width: 100%;
+.login-card .form-control {
+            border-radius: 30px;
+}
+.login-card .btn {
+            border-radius: 30px;
+}
+.login-card a {
+            color: white;
+            text-decoration: underline;
+}
+.login-card a:hover {
+            color: #ddd;
+            text-decoration: none;
 }
 
 .error-message {

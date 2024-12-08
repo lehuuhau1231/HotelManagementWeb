@@ -1,6 +1,34 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
+<!-- Hero Section -->
+<section class="hero text-center text-white" style="height: 400px; overflow: hidden;">
+    <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Hotel Image" class="img-fluid w-100">
+    <div class="position-absolute top-50 start-50 translate-middle w-100">
+        <h2 class="fw-bold mb-1" style="font-size: 4rem; font-family: 'Arial', sans-serif;">Welcome to LMAO</h2>
+        <h1 class="display-4 fw-bold" style="font-size: 3rem; font-family: 'Arial', sans-serif;">The Best Hotel</h1>
+        <div class="d-flex justify-content-center row fs-4 w-100">
+            <div class="col-auto">
+                <p class="mb-0"
+                    style="height: 350px; font-size: 95px; font-weight: Arial;">Booking</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- Room Details -->
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Room Image"
+                     class="card-img-top">
+                <div class="card-body text-white" style="background: #03204C9C;">
+                    <h5 class="card-title">Room name - Room type</h5>
+                    <p class="card-text">Information</p>
+                    <p class="card-text">Price</p>
+                </div>
+            </div>
     <div class="info" style="display: none">
         <div class="alert alert-info">
             <strong>Info!</strong> A room can accommodate a maximum of 3 people.

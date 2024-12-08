@@ -43,7 +43,7 @@ def change_password(user_id, new_password):
         user.password = new_password
         db.session.commit()
 
-
+        
 def load_room(page=None, room_type=None, room_id=None):
     rooms = Room.query
 
