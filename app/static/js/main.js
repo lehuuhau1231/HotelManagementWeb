@@ -115,3 +115,30 @@ window.onload = function () {
         }))
     }
 }
+//==================================Auto Fill====================================
+function autoFill(name, identification_card, customer_type, list_customer_type) {
+    let checked = document.querySelector(".cb")
+
+    let nameCus = document.getElementById("name");
+    let id = document.getElementById("id");
+    let type = document.getElementById("type");
+
+    if (!checked.checked) {
+        nameCus.value = name;
+        nameCus.readOnly = true;
+
+        id.value = identification_card;
+        id.readOnly = true;
+
+        type.innerHTML = `<option value="${customer_type}">${customer_type}</option>`;
+    } else {
+        nameCus.value = '';
+        nameCus.readOnly = false;
+
+        id.value = '';
+        id.readOnly = false;
+
+        type.innerHTML = `<option value="Domestic">Domestic</option>
+                            <option value="Foreign">Foreign</option>`;
+    }
+}

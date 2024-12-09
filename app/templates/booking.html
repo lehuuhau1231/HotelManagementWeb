@@ -44,7 +44,7 @@
                     <div class="card-body text-white" style="background: #03204C9C;">
                         <h5 class="card-title">{{ room.name }}</h5>
                         <p class="card-text">Room Type: {{ room.room_type.name }}</p>
-                        <p class="fw-bold">Price: {{ "{:,.0f}".format(room.price) }}$</p>
+                        <p class="fw-bold">Price: {{ "{:,.0f}".format(room.room_type.price) }}$</p>
                     </div>
                 </div>
             </div>
@@ -53,32 +53,47 @@
             <div class="col-md-8 mb-5">
                 <div class="row list-customer">
                     <div class="col-md-6 mb-3 customer-item">
-                        <div class="p-3" style="background: #D9D9D9;">
-                            <h6>Customer 1:</h6>
-
+                        <div class="p-3 flex" style="background: #D9D9D9;">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h6>Customer 1:</h6>
+                                {% if current_user.role|string == 'Role.CUSTOMER' %}
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span style="font-style: italic">Auto fill your information</span>
+                                        <label class="switch" style="transform: scale(0.8);">
+                                            <input class="cb" type="checkbox"/>
+                                            <span class="toggle"
+                                                  onclick="autoFill('{{ name }}',
+                                                          '{{ identification_card }}',
+                                                          '{{ customer_type }}',
+                                                          '{{ list_customer_type }}')">
+                                            <span class="left">off</span>
+                                            <span class="right">on</span>
+                                        </span>
+                                        </label>
+                                    </div>
+                                {% endif %}
+                            </div>
                             <div class="mb-2">
                                 <label for="name" class="form-label">Name:</label>
-                                <input type="text" id="name" class="form-control" name="name" value="{{ name }}"
-                                       readonly>
+                                <input type="text" id="name" class="form-control" name="name">
                             </div>
                             <div class="mb-2">
                                 <label for="id" class="form-label">Identification number:</label>
-                                <input type="text" id="id" class="form-control" name="identification_card"
-                                       value="{{ identification_card }}"
-                                       readonly>
+                                <input type="text" id="id" class="form-control" name="identification_card">
                             </div>
                             <div style="text-align: left">
                                 <p>Chosse Customer Type</p>
                                 <select id="type" class="form-select rounded-0" name="customer_type"
-                                        style="height: 40px;" disabled>
-                                    <option {% if customer_type == 1 %} selected {% endif %}>Domestic</option>
-                                    <option {% if customer_type == 2 %} selected {% endif %}>Foreign</option>
+                                        style="height: 40px;">
+                                    {% for item in list_customer_type %}
+                                        <option value="{{ item.type }}">{{ item.type }}</option>
+                                    {% endfor %}
                                 </select>
                                 <input type="hidden" name="customer_type"
                                         {% if customer_type == 1 %}
-                                            value="Domestic"
+                                       value="Domestic"
                                         {% else %}
-                                            value="Foreign"
+                                       value="Foreign"
                                         {% endif %}>
                             </div>
 

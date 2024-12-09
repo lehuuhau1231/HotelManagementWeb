@@ -4,15 +4,22 @@ from warnings import catch_warnings
 from flask import render_template, request, redirect, flash, session
 from app import app, dao, login_manager
 from flask_login import login_user, logout_user
+from app.models import Role
 import smtplib
 import random
+import math
+
 
 
 @app.route('/')
 def index():
     date_today = date.today().strftime('%Y-%m-%d')
-    print(date_today)
-    return render_template('index.html', date_today=date_today)
+
+    page = request.args.get('page', 1, type=int)
+
+    rooms = dao.load_room(page=page)
+    count_room = math.ceil(dao.count_room() / app.config["PAGE_SIZE"])
+    return render_template('index.html', date_today=date_today, rooms=rooms, count_room=count_room)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -25,6 +32,7 @@ def login():
         user = dao.auth_user(username, password)
         if user:
             login_user(user)
+            session['username'] = user.username
             return redirect('/')
         else:
             err_message = 'username or password incorrect'
@@ -86,7 +94,7 @@ def register():
             data = request.form.copy()
             del data['confirm']
             avatar = request.files.get('avatar')
-            dao.add_user(avatar=avatar, **data)
+            dao.add_customer(avatar=avatar, **data)
             flash('Welcome ' + name + ' to Hotel', 'Registered successfully')
             return redirect('/login')
 
@@ -107,7 +115,7 @@ def forgot_password():
     if request.method.__eq__('POST'):
         if step == 1:
             account = request.form.get('account')
-            user = dao.get_user_by_account(account)
+            user = dao.get_customer_by_account(account)
             session['user_id'] = user.id
             if user:
                 send_email(user)
@@ -156,14 +164,25 @@ def send_email(user):
         server.quit()
 
 
-@app.route('/roomdetail')
-def roomdetail():
-    return render_template('roomdetail.html')
+@app.route('/room-detail/')
+def room_detail():
+    room_id = request.args.get('room_id')
+    room = dao.load_room(room_id=room_id)
+    return render_template('roomdetail.html', room=room)
 
 
-@app.route('/booking')
+@app.route('/booking/')
 def booking():
-    return render_template('booking.html')
+    room_id = request.args.get('room_id')
+    room = dao.load_room(room_id=room_id)
+
+    username = session.get('username')
+    customer = dao.get_customer_by_account(username)
+
+    list_customer_type = dao.get_customer_type()
+
+    return render_template('booking.html', room=room, name=customer.name, identification_card=customer.identification_card
+                           ,customer_type=customer.customer_type.type, list_customer_type=list_customer_type)
 
 
 @app.route('/nvxemphong')

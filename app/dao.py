@@ -1,7 +1,8 @@
 import hashlib
-from app.models import User, Room, RoomType
+from app.models import User, Room, RoomType, Customer, CustomerType
 from app import db, app
 import cloudinary.uploader
+from sqlalchemy import or_
 
 
 def auth_user(username, password):
@@ -13,18 +14,19 @@ def get_user_by_id(user_id):
     return User.query.get(user_id)
 
 
-def get_user_by_account(account):
-    return User.query.filter(User.username.__eq__(account) or User.email.__eq__(account)).first()
+def get_customer_by_account(account):
+    account = account.strip()
+    return Customer.query.filter(or_(Customer.username == account, Customer.email == account)).first()
 
 
-def add_user(name, username, password, email, phone, avatar, gender, identification, type):
+def add_customer(name, username, password, email, phone, avatar, gender, identification, type):
     password = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
     if type.__eq__('domestic'):
         type = 1
     else:
         type = 2
-    user = User(name=name, username=username, password=password, email=email, phone=phone, gender=gender
-                , identification_card=identification, customer_type_id=type)
+    user = Customer(name=name, username=username, password=password, email=email, phone=phone, gender=gender
+                ,identification_card=identification, customer_type_id=type)
     if avatar:
         upload_result = cloudinary.uploader.upload(avatar)
         user.avatar = upload_result.get('secure_url')
@@ -63,3 +65,7 @@ def load_room(page=None, room_type=None, room_id=None):
 
 def count_room():
     return Room.query.count()
+
+
+def get_customer_type():
+    return CustomerType.query.all()

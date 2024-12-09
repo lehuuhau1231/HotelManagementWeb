@@ -52,10 +52,10 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ room.name }}</h5>
                             <p class="card-text">Room Type: {{ room.room_type.name }}</p>
-                            <p class="fw-bold">Price: {{ "{:,.0f}".format(room.price) }}$</p>
+                            <p class="fw-bold">Price: {{ "{:,.0f}".format(room.room_type.price) }}$</p>
                             <div class="d-flex justify-content-end ">
-                                <a href="/room-detail/?room_id={{ room.id }}" class="btn btn-primary w-50 bg-white text-black"
-                                   style="border-radius: 60px;" class="view""">View Detail</a>
+                                <a href="/room-detail/?room_id={{ room.id }}" class="btn btn-primary w-50 bg-white text-black view"
+                                   style="border-radius: 60px;">View Detail</a>
                             </div>
                         </div>
                     </div>
