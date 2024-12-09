@@ -175,13 +175,14 @@ def room_detail():
 def booking():
     room_id = request.args.get('room_id')
     room = dao.load_room(room_id=room_id)
+    date_today = date.today().strftime('%Y-%m-%d')
 
     username = session.get('username')
     customer = dao.get_customer_by_account(username)
 
     list_customer_type = dao.get_customer_type()
 
-    return render_template('booking.html', room=room, name=customer.name, identification_card=customer.identification_card
+    return render_template('booking.html', date_today=date_today, room=room, name=customer.name, identification_card=customer.identification_card
                            ,customer_type=customer.customer_type.type, list_customer_type=list_customer_type)
 
 
@@ -210,8 +211,32 @@ def account():
     return render_template('account.html')
 
 
-@app.route('/reservation')
+@app.route('/reservation', methods=['GET', 'POST'])
 def reservation():
+    error_message = {}
+    if request.method == 'POST':
+        name = request.form.getlist('name')
+        identification_card = request.form.getlist('identification_card')
+        customer_type = request.form.getlist('customer_type')
+
+        room_id = request.args.get('room_id')
+        room = dao.load_room(room_id=room_id)
+        date_today = date.today().strftime('%Y-%m-%d')
+
+        length = int(len(name))
+        for i in range(0, length):
+            if not (re.fullmatch(r'\d{12}', identification_card[i]) or re.fullmatch(r'\d{9}', identification_card[i])
+                    or re.fullmatch(r'[a-z][a-z0-9]{7}', identification_card[i], re.IGNORECASE)):
+                error_message['err_identification_card'] = 'Identification card is invalid.'
+                break
+        if not dao.existence_check('identification_card', identification_card[0]):
+            error_message['err_not_exist'] = 'A customer with an account must exist in the system.'
+
+        if error_message:
+            return render_template('booking.html', error_message=error_message, room=room, date_today=date_today,
+                                   name_check=name, identification_card_check=identification_card, customer_type_check=customer_type,
+                                   length=length)
+
     return render_template('reservation.html')
 
 

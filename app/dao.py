@@ -35,7 +35,7 @@ def add_customer(name, username, password, email, phone, avatar, gender, identif
 
 
 def existence_check(attribute, value):
-    return User.query.filter(getattr(User, attribute).__eq__(value)).first()
+    return Customer.query.filter(getattr(Customer, attribute).__eq__(value)).first()
 
 
 def change_password(user_id, new_password):

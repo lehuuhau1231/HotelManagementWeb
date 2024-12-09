@@ -57,8 +57,8 @@ function addCustomer() {
                     <p>Chosse Customer Type</p>
                     <select id="type${count}" class="form-select rounded-0" name="customer_type"
                             style="height: 40px;">
-                        <option>Domestic</option>
-                        <option>Foreign</option>
+                        <option value="Domestic">Domestic</option>
+                        <option value="Foreign">Foreign</option>
                     </select>
                 </div>
             </div>
@@ -116,7 +116,7 @@ window.onload = function () {
     }
 }
 //==================================Auto Fill====================================
-function autoFill(name, identification_card, customer_type, list_customer_type) {
+function autoFill(name, identification_card, customer_type) {
     let checked = document.querySelector(".cb")
 
     let nameCus = document.getElementById("name");
