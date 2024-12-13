@@ -1,8 +1,11 @@
 import hashlib
-from app.models import User, Room, RoomType, Customer, CustomerType
+from app.models import User, Room, RoomType, Customer, CustomerType, Guest, RoomReservationForm
 from app import db, app
 import cloudinary.uploader
 from sqlalchemy import or_
+import hmac
+from urllib.parse import urlencode
+import urllib.parse
 
 
 def auth_user(username, password):
@@ -21,7 +24,7 @@ def get_customer_by_account(account):
 
 def add_customer(name, username, password, email, phone, avatar, gender, identification, type):
     password = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
-    if type.__eq__('domestic'):
+    if type.__eq__('Domestic'):
         type = 1
     else:
         type = 2
@@ -67,5 +70,89 @@ def count_room():
     return Room.query.count()
 
 
-def get_customer_type():
+def get_customer_type(type=None):
+    if type:
+        return CustomerType.query.filter(CustomerType.type == type).first()
     return CustomerType.query.all()
+
+
+def add_guest(data):
+    if data['customer_type'].__eq__('Domestic'):
+        type = 1
+    else:
+        type = 2
+    guest = Guest(name=data['name'], identification_card=data['identification_card'], customer_type_id=type)
+    db.session.add(guest)
+
+
+def add_room_reservation_form(data, customer_id, user_id=None):
+    if user_id:
+        room_reservation_form = RoomReservationForm(check_in_date=data['check_in_date'],
+                                                    check_out_date=data['check_out_date'],
+                                                    deposit=data['deposit'], total_amount=data['total_amount'],
+                                                    room_id=data['room_id'], customer_id=customer_id, user_id=user_id)
+    else:
+        room_reservation_form = RoomReservationForm(check_in_date=data['check_in_date'],
+                                                    check_out_date=data['check_out_date'],
+                                                    deposit=data['deposit'], total_amount=data['total_amount'],
+                                                    room_id=data['room_id'], customer_id=customer_id)
+    db.session.add(room_reservation_form)
+
+
+class vnpay:
+    requestData = {}
+    responseData = {}
+
+    def get_payment_url(self, vnpay_payment_url, secret_key):
+        # Dữ liệu thanh toán được sắp xếp dưới dạng danh sách các cặp khóa-giá trị theo thứ tự tăng dần của khóa.
+        inputData = sorted(self.requestData.items())
+        # Duyệt qua danh sách đã sắp xếp và tạo chuỗi query sử dụng urllib.parse.quote_plus để mã hóa giá trị
+        queryString = ''
+        hasData = ''
+        seq = 0
+        for key, val in inputData:
+            if seq == 1:
+                queryString = queryString + "&" + key + '=' + urllib.parse.quote_plus(str(val))
+            else:
+                seq = 1
+                queryString = key + '=' + urllib.parse.quote_plus(str(val))
+
+        # Sử dụng phương thức __hmacsha512 để tạo mã hash từ chuỗi query và khóa bí mật
+        hashValue = self.__hmacsha512(secret_key, queryString)
+        return vnpay_payment_url + "?" + queryString + '&vnp_SecureHash=' + hashValue
+
+    def validate_response(self, secret_key):
+        # Lấy giá trị của vnp_SecureHash từ self.responseData.
+        vnp_SecureHash = self.responseData['vnp_SecureHash']
+        # Loại bỏ các tham số liên quan đến mã hash
+        if 'vnp_SecureHash' in self.responseData.keys():
+            self.responseData.pop('vnp_SecureHash')
+
+        if 'vnp_SecureHashType' in self.responseData.keys():
+            self.responseData.pop('vnp_SecureHashType')
+        # Sắp xếp dữ liệu (inputData)
+        inputData = sorted(self.responseData.items())
+
+        hasData = ''
+        seq = 0
+        for key, val in inputData:
+            if str(key).startswith('vnp_'):
+                if seq == 1:
+                    hasData = hasData + "&" + str(key) + '=' + urllib.parse.quote_plus(str(val))
+                else:
+                    seq = 1
+                    hasData = str(key) + '=' + urllib.parse.quote_plus(str(val))
+        # Tạo mã hash
+        hashValue = self.__hmacsha512(secret_key, hasData)
+
+        print(
+            'Validate debug, HashData:' + hasData + "\n HashValue:" + hashValue + "\nInputHash:" + vnp_SecureHash)
+
+        return vnp_SecureHash == hashValue
+
+    # tạo mã hash dựa trên thuật toán HMAC-SHA-512
+    @staticmethod
+    def __hmacsha512(key, data):
+        byteKey = key.encode('utf-8')
+        byteData = data.encode('utf-8')
+        return hmac.new(byteKey, byteData, hashlib.sha512).hexdigest()

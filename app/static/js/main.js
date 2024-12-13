@@ -37,7 +37,7 @@ let count = 1;
 function addCustomer() {
     if(count <= 2) {
         count += 1
-        customer = document.querySelector(".list-customer");
+        let customer = document.querySelector(".list-customer");
         customer.insertAdjacentHTML("beforeend", `
         <div class="col-md-6 mb-3 customer-item">
             <div class="p-3 customer-update" style="background: #D9D9D9;">
@@ -52,10 +52,11 @@ function addCustomer() {
                 <div class="mb-2">
                     <label for="id" class="form-label">Identification number:</label>
                     <input type="text" id="id${count}" class="form-control id" name="identification_card" required>
+                    <p class="text-danger" style="display: none; font-style: italic"></p>
                 </div>
                 <div style="text-align: left">
                     <p>Chosse Customer Type</p>
-                    <select id="type${count}" class="form-select rounded-0" name="customer_type"
+                    <select id="type${count}" class="form-select rounded-0  customer_type" name="customer_type"
                             style="height: 40px;">
                         <option value="Domestic">Domestic</option>
                         <option value="Foreign">Foreign</option>
@@ -85,7 +86,7 @@ deleteCustomer.addEventListener("click", function (event) {
 //======================End Delete Customer==================================
 
 function updateCustomer() {
-    listCustomer = document.querySelectorAll(".customer-item")
+    let listCustomer = document.querySelectorAll(".customer-item")
     listCustomer.forEach((item, index) => {
         if(index > 0) {//Bỏ customer đầu mặc định đã đăng kí tài khoản
             customerNumber = index + 1;
@@ -99,7 +100,6 @@ function updateCustomer() {
 window.onload = function () {
     let checkin = document.getElementById("check-in")
     let checkout = document.getElementById("check-out")
-    console.log("1")
     checkin.addEventListener("change", saveDate)
     checkout.addEventListener("change", saveDate)
 
@@ -140,5 +140,106 @@ function autoFill(name, identification_card, customer_type) {
 
         type.innerHTML = `<option value="Domestic">Domestic</option>
                             <option value="Foreign">Foreign</option>`;
+    }
+}
+//===============================Validate CCCD====================================
+function validate(event, roomId) {
+    event.preventDefault();
+    let valid = true;
+    let inputId = document.querySelectorAll("input[name='identification_card']");
+    let listId = [];
+
+    let error = document.querySelector('.error')
+
+    let arrayId = []
+
+    for (let i = 0; i < inputId.length; i++) {
+        let value = inputId[i].value.trim();
+        if(value && arrayId.includes(value)) {
+            console.log('sai');
+            error.style.display = "block";
+            valid = false;
+            break;
+        } else {
+            error.style.display = "none";
+            arrayId.push(value)
+            valid = true;
+        }
+    }
+
+    if(valid) {
+        inputId.forEach(input => {
+            const errorMessage = input.nextElementSibling;
+            if (/^\d{12}$/.test(input.value) || /^\d{9}$/.test(input.value) || /^[a-zA-Z][a-zA-Z0-9]{7}$/.test(input.value)) {
+                errorMessage.style.display = "none";
+                listId.push(input.value);
+                valid = true;
+            } else {
+                errorMessage.textContent = "Identification card is invalid.";
+                errorMessage.style.display = "block";
+                valid = false;
+            }
+        })
+
+        if (valid) {
+            let inputName = document.querySelectorAll("input[name='name']");
+            let inputCustomerType = document.querySelectorAll(".customer_type");
+
+            let listName = Array.from(inputName).map((item) => item.value.trim());
+            let listCustomerType = Array.from(inputCustomerType).map((item) => item.value.trim());
+
+            let checkin = document.getElementById("checkin").value;
+            let checkout = document.getElementById("checkout").value;
+
+            fetch('/api/check_account', {
+                method: 'POST',
+                body: JSON.stringify({
+                    "listName": listName,
+                    "listId": listId,
+                    "listCustomerType": listCustomerType,
+                    "checkin": checkin,
+                    "checkout": checkout,
+                    "roomId": roomId,
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    window.location.pathname = '/reservation';
+                } else {
+                    let popup = document.querySelector('.popup')
+                    popup.insertAdjacentHTML("beforeend", `
+                    <!-- The Modal -->
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                    
+                          <!-- Modal Header -->
+                          <div class="modal-header">
+                            <h4 class="modal-title">Regulation</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                    
+                          <!-- Modal body -->
+                          <div class="modal-body">
+                            When booking a room, the information of a person who has already registered an
+                                    account in the system must be entered.
+                          </div>
+                    
+                          <!-- Modal footer -->
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                          </div>
+                    
+                        </div>
+                      </div>
+                    </div>
+                `);
+                    var myModal = new bootstrap.Modal(document.getElementById('myModal'));
+                    myModal.show();
+                }
+            })
+        }
     }
 }
