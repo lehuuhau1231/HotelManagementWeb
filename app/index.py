@@ -1,14 +1,17 @@
 import re
 from datetime import date
 from warnings import catch_warnings
-from flask import render_template, request, redirect, flash, session
-from app import app, dao, login_manager
-from flask_login import login_user, logout_user
-from app.models import Role
+from flask import render_template, request, redirect, flash, session, url_for
+from sqlalchemy.orm import joinedload
+from app import app, dao, login_manager, db, admin
+from flask_login import login_user, logout_user, current_user
+
+from app.admin import MyView
+from app.dao import get_user_by_id
+from app.models import Role, User, Customer
 import smtplib
 import random
 import math
-
 
 
 @app.route('/')
@@ -30,10 +33,17 @@ def login():
         password = request.form.get('password')
 
         user = dao.auth_user(username, password)
-        if user:
+        if user.role == Role.CUSTOMER:
             login_user(user)
             session['username'] = user.username
             return redirect('/')
+        elif user.role == Role.ADMIN:
+            login_user(user)
+            session['username'] = user.username
+            return  redirect(url_for('admin'))
+        elif user.role == Role.RECEPTIONIST:
+            login_user(user)
+            return redirect(url_for('nvxemphong'))
         else:
             err_message = 'username or password incorrect'
 
@@ -182,8 +192,9 @@ def booking():
 
     list_customer_type = dao.get_customer_type()
 
-    return render_template('booking.html', date_today=date_today, room=room, name=customer.name, identification_card=customer.identification_card
-                           ,customer_type=customer.customer_type.type, list_customer_type=list_customer_type)
+    return render_template('booking.html', date_today=date_today, room=room, name=customer.name,
+                           identification_card=customer.identification_card
+                           , customer_type=customer.customer_type.type, list_customer_type=list_customer_type)
 
 
 @app.route('/nvxemphong')
@@ -206,10 +217,56 @@ def nvcheckout():
     return render_template('employees/nvcheckout.html')
 
 
-@app.route('/account')
+@app.route('/account', methods=['GET'])
 def account():
-    return render_template('account.html')
+    user_id = session.get('_user_id')
+    user = get_user_by_id(user_id)
+    customer = Customer.query.filter_by(User_id=user_id).first()
+    print(session)
+    if '_user_id' not in session:
+        return redirect(url_for('login'))
 
+    return render_template('account.html', user=user, customer=customer)
+
+
+@app.route('/account/edit', methods=['GET', 'POST'])
+def edit_account():
+    user_id = session.get('_user_id')
+    user = get_user_by_id(user_id)
+    print(session)
+    user = db.session.query(User).options(joinedload(User.customer)).filter_by(id=user_id).first()
+    if '_user_id' not in session:
+        return redirect(url_for('login'))
+
+    customer = Customer.query.filter_by(User_id=user_id).first()
+
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        identification_card = request.form.get('identification_card')
+        customer_type_id = request.form.get('customer_type_id')
+        gender = request.form.get('gender')
+
+        #Update dữ liệu User
+        current_user.username = username
+        current_user.email = email
+        current_user.phone = phone
+        current_user.gender = gender
+
+        if customer: #này chưa lưu được vô CSDL hmmm
+            customer.identification_card = identification_card
+            customer.customer_type_id = customer_type_id
+        try:
+            #Update vô CSDL
+            db.session.commit()
+            flash("Thông tin tài khoản được cập nhật thành công!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Có lỗi xảy ra: {str(e)}", "danger")
+        return redirect(url_for('account'))
+
+    return render_template('edit_account.html', user=user, customer=customer)
 
 @app.route('/reservation', methods=['GET', 'POST'])
 def reservation():
@@ -234,11 +291,17 @@ def reservation():
 
         if error_message:
             return render_template('booking.html', error_message=error_message, room=room, date_today=date_today,
-                                   name_check=name, identification_card_check=identification_card, customer_type_check=customer_type,
+                                   name_check=name, identification_card_check=identification_card,
+                                   customer_type_check=customer_type,
                                    length=length)
 
     return render_template('reservation.html')
 
 
+@app.route('/admin/')
+def admin():
+    return MyView().render('admin/index.html')
+
 if __name__ == '__main__':
+    from app import admin
     app.run(debug=True)

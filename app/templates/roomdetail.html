@@ -1,13 +1,11 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
-<section class="hero position-relative text-center text-white" style="height: 300px; overflow: hidden;">
+<section class="hero position-relative text-center text-white" style="height: 500px; overflow: hidden;">
     <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Hotel Image" class="img-fluid">
     <div class="position-absolute top-0 start-0 w-100 h-95 bg-dark opacity-50"></div>
     <div class="position-absolute top-50 start-50 translate-middle w-100">
-        <h2 class="fw-bold" style="font-size: 4rem; font-family: 'Arial', sans-serif;">Welcome
-            to
-            LMAO</h2>
+        <h2 class="fw-bold" style="font-size: 4rem; font-family: 'Arial', sans-serif;">Welcome to LMAO</h2>
         <h1 class="display-4 fw-bold"
             style="font-size: 3rem; font-family: 'Arial', sans-serif;">
             The Best Hotel</h1>
@@ -15,6 +13,18 @@
             <div class="col-auto">
                 <p class="mb-0"
                    style="font-size: 95px; font-weight: Arial;">View Detail</p>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center row fs-4 w-100">
+            <div class="col-auto">
+                <label for="check-in" class="form-label fw-Arial" style="font-size: 30px;">Check-in</label>
+                <input type="date" id="check-in" class="form-control rounded-0"
+                       style="font-size: 23px;" min="{{ date_today }}" value="{{ date_today }}">
+            </div>
+            <div class="col-auto">
+                <label for="check-out" class="form-label fw-Arial" style="font-size: 30px;">Check-out</label>
+                <input type="date" id="check-out" class="form-control rounded-0"
+                       style="font-size: 23px;" min="{{ date_today }}">
             </div>
         </div>
     </div>
