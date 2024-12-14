@@ -15,13 +15,13 @@
             </div>
             <div class="col-auto">
                 <label for="check-in" class="form-label fw-Arial" style="font-size: 30px;">Check-in</label>
-                <input type="date" id="check-in" class="form-control rounded-0"
-                       style="height: 60px; font-size: 23px;" min="{{ date_today }}" value="{{ date_today }}">
+                <input type="datetime-local" id="check-in" class="form-control rounded-0"
+                       style="height: 60px; font-size: 23px;" min="{{ current_datetime }}" value="{{ current_datetime }}">
             </div>
             <div class="col-auto">
                 <label for="check-out" class="form-label fw-Arial" style="font-size: 30px;">Check-out</label>
-                <input type="date"  id="check-out" class="form-control rounded-0"
-                       style="height: 60px; font-size: 23px;" min="{{ date_today }}">
+                <input type="datetime-local"  id="check-out" class="form-control rounded-0"
+                       style="height: 60px; font-size: 23px;" min="{{ current_datetime }}">
             </div>
             <div class="col-auto">
                 <label for="rooms" class="form-label fw-Arial" style="font-size: 30px;">Rooms</label>

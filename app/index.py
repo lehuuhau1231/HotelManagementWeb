@@ -1,14 +1,18 @@
 import re
-from datetime import date
+from datetime import date, datetime
 from warnings import catch_warnings
 from flask import render_template, request, redirect, flash, session, url_for
 from sqlalchemy.orm import joinedload
 from app import app, dao, login_manager, db, admin
 from flask_login import login_user, logout_user, current_user
-
 from app.admin import MyView
 from app.dao import get_user_by_id
 from app.models import Role, User, Customer
+from flask import render_template, request, redirect, flash, session, jsonify, url_for
+from sqlalchemy.sql.functions import current_date
+from app.models import Guest, RoomReservationForm
+from app import app, dao, login_manager, utils, VNPAY_CONFIG, db
+from flask_login import login_user, logout_user, login_required
 import smtplib
 import random
 import math
@@ -16,13 +20,13 @@ import math
 
 @app.route('/')
 def index():
-    date_today = date.today().strftime('%Y-%m-%d')
+    current_datetime = datetime.now().strftime('%Y-%m-%dT%H:%M')
 
     page = request.args.get('page', 1, type=int)
 
     rooms = dao.load_room(page=page)
     count_room = math.ceil(dao.count_room() / app.config["PAGE_SIZE"])
-    return render_template('index.html', date_today=date_today, rooms=rooms, count_room=count_room)
+    return render_template('index.html', current_datetime=current_datetime, rooms=rooms, count_room=count_room)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -120,7 +124,6 @@ def load_user(user_id):
 def forgot_password():
     err_message = ''
     step = int(request.form.get('step', '1'))
-    print(step)
 
     if request.method.__eq__('POST'):
         if step == 1:
@@ -137,16 +140,13 @@ def forgot_password():
             otp_code = request.form.get('otp')
             otp_code_sent = session.get('otp_code')
             if int(otp_code.strip()) == int(otp_code_sent):
-                print("success step 2")
                 return render_template('forgotPassword.html', step=3)
             else:
                 err_message = 'OTP code do not match'
 
         elif step == 3:
-            print("start step 2")
             session.pop('otp_code', None)  # Giải phóng bộ nhớ
             user_id = session.get('user_id')
-            print(user_id)
             password = request.form.get('password')
             confirm_password = request.form.get('confirm')
             if password.__eq__(confirm_password):
@@ -182,10 +182,11 @@ def room_detail():
 
 
 @app.route('/booking/')
+@login_required
 def booking():
     room_id = request.args.get('room_id')
     room = dao.load_room(room_id=room_id)
-    date_today = date.today().strftime('%Y-%m-%d')
+    current_datetime = datetime.now().strftime("%Y-%m-%dT%H:%M")
 
     username = session.get('username')
     customer = dao.get_customer_by_account(username)
@@ -195,6 +196,147 @@ def booking():
     return render_template('booking.html', date_today=date_today, room=room, name=customer.name,
                            identification_card=customer.identification_card
                            , customer_type=customer.customer_type.type, list_customer_type=list_customer_type)
+    return render_template('booking.html', current_datetime=current_datetime, room=room, name=customer.name,
+                           identification_card=customer.identification_card
+                           , customer_type=customer.customer_type.type, list_customer_type=list_customer_type)
+
+
+@app.route('/api/check_account', methods=['POST'])
+def check_account():
+    list_name = request.json.get('listName')
+    list_id = request.json.get('listId')
+    list_customer_type = request.json.get('listCustomerType')
+
+    checkin = request.json.get('checkin')
+    checkout = request.json.get('checkout')
+    room_id = request.json.get('roomId')
+
+    room = dao.load_room(room_id=room_id)
+
+    checkin_date = datetime.strptime(checkin, '%Y-%m-%dT%H:%M')
+    checkout_date = datetime.strptime(checkout, '%Y-%m-%dT%H:%M')
+
+    day = checkout_date - checkin_date
+
+    length = len(list_name)
+    customer = dao.existence_check('identification_card', list_id[0])
+
+    session['guest'] = []
+
+    if customer:
+        for i in range(1, length):
+            guest = {
+                'name': list_name[i],
+                'identification_card': list_id[i],
+                'customer_type': list_customer_type[i]
+            }
+
+            session['guest'].append(guest)
+
+        total_amount = utils.total_price(room.room_type.price, day.days, length, list_customer_type, room_id)
+
+        session['room_reservation_form'] = {
+            'order_id': f"reservation-{room_id}-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            'check_in_date': checkin,
+            'check_out_date': checkout,
+            'deposit': total_amount * 0.3,
+            'room_id': room_id,
+            'customer_id': customer.cus_id,
+            'total_amount': total_amount
+        }
+
+        return jsonify({
+            'success': True
+        })
+
+    return jsonify({
+        'success': False
+    })
+
+
+@app.route('/reservation', methods=['GET', 'POST'])
+def reservation():
+    room_id = request.args.get('room_id')
+    room = dao.load_room(room_id=room_id)
+
+    username = session.get('username')
+    customer = dao.get_customer_by_account(username)
+
+    length = len(session.get('guest'))
+
+    return render_template('reservation.html', room=room, customer=customer, length=length)
+
+
+@app.route('/payment', methods=['GET', 'POST'])
+def payment():
+    # Lấy thông tin thanh toán từ người dùng
+    amount = session['room_reservation_form']['deposit']  # Số tiền thanh toán (VNĐ)
+    amount *= 25000
+    order_id = session['room_reservation_form']['order_id']
+
+    vnp = dao.vnpay()
+    # Xây dựng hàm cần thiết cho vnpay
+    vnp.requestData['vnp_Version'] = '2.1.0'
+    vnp.requestData['vnp_Command'] = 'pay'
+    vnp.requestData['vnp_TmnCode'] = VNPAY_CONFIG['vnp_TmnCode']
+    vnp.requestData['vnp_Amount'] = str(int(amount * 100))
+    vnp.requestData['vnp_CurrCode'] = 'VND'
+    vnp.requestData['vnp_TxnRef'] = order_id
+    vnp.requestData['vnp_OrderInfo'] = 'Thanhtoan'  # Nội dung thanh toán
+    vnp.requestData['vnp_OrderType'] = 'hotel'
+
+    vnp.requestData['vnp_Locale'] = 'vn'
+
+    vnp.requestData['vnp_CreateDate'] = datetime.now().strftime('%Y%m%d%H%M%S')
+    vnp.requestData['vnp_IpAddr'] = "127.0.0.1"
+    vnp.requestData['vnp_ReturnUrl'] = url_for('vnpay_return', _external=True)
+
+    vnp_payment_url = vnp.get_payment_url(VNPAY_CONFIG['vnp_Url'], VNPAY_CONFIG['vnp_HashSecret'])
+
+    return redirect(vnp_payment_url)
+
+
+@app.route('/vnpay_return', methods=['GET'])
+def vnpay_return():
+    vnp_ResponseCode = request.args.get('vnp_ResponseCode')
+
+    if vnp_ResponseCode == '00':
+        list_guest = session.get('guest')
+        room_reservation_form = session.get('room_reservation_form')
+
+        username = session.get('username')
+        customer = dao.get_customer_by_account(username)
+
+        room_reservation_form = RoomReservationForm(check_in_date=room_reservation_form['check_in_date'],
+                                                    check_out_date=room_reservation_form['check_out_date'],
+                                                    deposit=room_reservation_form['deposit'], total_amount=room_reservation_form['total_amount'],
+                                                    room_id=room_reservation_form['room_id'], customer_id=customer.cus_id)
+        print('Add reservation success')
+
+        arr_guest = []
+        if list_guest:
+            for guest in list_guest:
+                if guest['customer_type'].__eq__('Domestic'):
+                    type = 1
+                else:
+                    type = 2
+                guest = Guest(name=guest['name'], identification_card=guest['identification_card'], customer_type_id=type)
+
+                guest.room_reservation_form.append(room_reservation_form)
+
+                arr_guest.append(guest)
+                print('Add guest success')
+        db.session.add(room_reservation_form)
+        db.session.add_all(arr_guest)
+        db.session.commit()
+
+        flash('Payment success', 'Payment result')
+
+
+    else:
+        flash('Payment failed', 'Payment result')
+
+    return redirect('/')
 
 
 @app.route('/nvxemphong')
@@ -301,6 +443,7 @@ def reservation():
 @app.route('/admin/')
 def admin():
     return MyView().render('admin/index.html')
+
 
 if __name__ == '__main__':
     from app import admin

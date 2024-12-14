@@ -32,7 +32,6 @@ class User(Base, UserMixin):
     role = Column(Enum(Role), default=Role.CUSTOMER)
     room = relationship('Room', backref='user', lazy=True)
     room_regulation = relationship('RoomRegulation', backref='user', lazy=True)
-    extra_charge_regulation = relationship('ExtraChargeRegulation', backref='user', lazy=True)
     customer_regulation = relationship('CustomerRegulation', backref='user', lazy=True)
     room_reservation_form = relationship('RoomReservationForm', backref='user', lazy=True)
     bill = relationship('Bill', backref='user', lazy=True)
@@ -79,30 +78,24 @@ class RoomType(Base):
 class Room(Base):
     name = Column(String(50), nullable=False)
     image = Column(String(100))
+    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    room_type_id = Column(Integer, ForeignKey(RoomType.id), nullable=False)
+    status = Column(String(50), nullable=False)
     room_reservation_from = relationship('RoomReservationForm', backref='room', lazy=True)
     room_rental_from = relationship('RoomRentalForm', backref='room', lazy=True)
     comment = relationship('Comment', backref='room', lazy=True)
-    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
-    room_type_id = Column(Integer, ForeignKey(RoomType.id), nullable=False)
 
 
 class RoomRegulation(Base):
-    number_of_guests = Column(Integer, nullable=False)
-    price = Column(Float, nullable=False)
+    number_of_guests = Column(Integer, nullable=False, default=3)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     room_type_id = Column(Integer, ForeignKey(RoomType.id), unique=True, nullable=False)
+    rate = Column(Float, nullable=False, default=0.25)
     room_type = relationship('RoomType', back_populates='room_regulation')
-    extra_charge_regulation = relationship('ExtraChargeRegulation', backref='room_regulation', lazy=True)
-
-
-class ExtraChargeRegulation(Base):
-    rate = Column(Float, nullable=False)
-    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
-    room_regulation_id = Column(Integer, ForeignKey(RoomRegulation.id), nullable=False, unique=True)
 
 
 class CustomerRegulation(Base):
-    Coefficient = Column(Float, nullable=False)
+    Coefficient = Column(Float, nullable=False, default=1.5)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     customer_type_id = Column(Integer, ForeignKey(CustomerType.id), nullable=False, unique=True)
 
@@ -111,17 +104,11 @@ class RoomReservationForm(Base):
     check_in_date = Column(DateTime, nullable=False)
     check_out_date = Column(DateTime, nullable=False)
     deposit = Column(Float, nullable=False)
-    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    total_amount = Column(Float, nullable=True)
+    user_id = Column(Integer, ForeignKey(User.id), nullable=True)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
     room_rental_form = relationship('RoomRentalForm', backref='room_reservation_form', uselist=False)
-
-
-class Bill(Base):
-    total_amount = Column(Float, nullable=False)
-    creation_date = Column(DateTime, nullable=False)
-    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
-    room_rental_from = relationship('RoomRentalForm', backref='bill', lazy=True)
 
 
 class RoomRentalForm(Base):
@@ -131,13 +118,22 @@ class RoomRentalForm(Base):
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
-    bill_id = Column(Integer, ForeignKey(Bill.id), nullable=False, unique=True)
-    room_reservation_form_id = Column(Integer, ForeignKey(RoomReservationForm.id), unique=True, nullable=False)
+    # bill_id = Column(Integer, ForeignKey(Bill.id), nullable=False, unique=True)
+    room_reservation_form_id = Column(Integer, ForeignKey(RoomReservationForm.id), unique=True, nullable=True)
+    bill = relationship('Bill', backref='room_rental_form', lazy=True, uselist=False)
+
+
+class Bill(Base):
+    total_price = Column(Float, nullable=False)
+    created_date = Column(DateTime, nullable=False)
+    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    room_rental_form_id = Column(Integer, ForeignKey(RoomRentalForm.id), nullable=False, unique=True)
+    # room_rental_from = relationship('RoomRentalForm', backref='bill', lazy=True)
 
 
 class Comment(Base):
     content = Column(String(1000), nullable=False)
-    creation_date = Column(DateTime, default=datetime.now())
+    created_date = Column(DateTime, default=datetime.now())
     # user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
@@ -156,18 +152,20 @@ if __name__ == '__main__':
     with app.app_context():
         db.drop_all()
         db.create_all()
+
         customer_type1 = CustomerType(type='Domestic')
         customer_type2 = CustomerType(type='Foreign')
-        # db.session.query(User).delete()
-        # db.session.execute(text('ALTER TABLE user AUTO_INCREMENT = 1')) #Reset AUTO_INCREMENT về 1 khi xóa bảng và thêm mới
         db.session.add_all([customer_type1, customer_type2])
         db.session.commit()
         customer_type = db.session.query(CustomerType).filter(CustomerType.type.__eq__('domestic')).first()
-        user1 = User(name='Lê Hữu Hậu', username='lehuuhau', password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
+        user1 = User(name='Lê Hữu Hậu', username='lehuuhau',
+                     password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
                      email='lehuuhau1231@gmail.com',
                      phone='0378151028', gender=1, role=Role.ADMIN)
         user2 = User(name='Lâm',username='duclam', password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
                      email='lamn9049@gmail.com', phone='0375808832', gender=1, role=Role.RECEPTIONIST)
+        user2 = User(name='Lâm', username='huuhau', password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
+                     email='lehuuhau@gmail.com', phone='0378151028', gender=1, role=Role.RECEPTIONIST)
         cus = Customer(name='Trần Quỳnh Hương', username='trqhuong',
                        password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
                        email='quynhhuongtran314@gmail.com',
@@ -190,7 +188,7 @@ if __name__ == '__main__':
         db.session.commit()
 
         #         ==============================Thêm phòng======================================
-        
+
         room1 = Room()
         admin = User.query.filter(User.role.__eq__(Role.ADMIN)).first()
         rooms = [
@@ -198,37 +196,43 @@ if __name__ == '__main__':
                 'name': 'Deluxe Room(River view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/singleViewRiver1_xldkkp.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_single.id
+                'room_type_id': room_type_single.id,
+                'status': 'Occupied'
             },
             {
                 'name': 'Executive Room(City view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewRiver_rtsum2.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_twin.id
+                'room_type_id': room_type_twin.id,
+                'status': 'Occupied'
             },
             {
                 'name': 'President Room(River view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewRiver_rtsum2.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_double.id
+                'room_type_id': room_type_double.id,
+                'status': 'Occupied'
             },
             {
                 'name': 'Deluxe Room(City view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/singleViewCity1_yrewg4.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_single.id
+                'room_type_id': room_type_single.id,
+                'status': 'Occupied'
             },
             {
                 'name': 'Executive Room(River view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/twinViewRiver1_kn87ab.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_twin.id
+                'room_type_id': room_type_twin.id,
+                'status': 'Unoccupied'
             },
             {
                 'name': 'President Room(City view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewCity1_wavkyb.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_double.id
+                'room_type_id': room_type_double.id,
+                'status': 'Unoccupied'
             }
         ]
 
@@ -236,16 +240,29 @@ if __name__ == '__main__':
             db.session.add(Room(**room))
         db.session.commit()
 
+        #         ==============================Thêm quy định phòng======================================
+        room_regulation_data = [{'room_type_id': room_type_single.id, 'user_id': user1.id},
+                                {'room_type_id': room_type_twin.id, 'user_id': user1.id},
+                                {'room_type_id': room_type_double.id, 'user_id': user1.id}]
+        for regulation in room_regulation_data:
+            db.session.add(RoomRegulation(**regulation))
+        db.session.commit()
+
+        #         ==============================Thêm quy định KH======================================
+        cus_regulation = CustomerRegulation(user_id=user1.id, customer_type_id=2)
+        db.session.add(cus_regulation)
+        db.session.commit()
+
         #         ==============================Thêm phiếu đặt======================================
         reservation_data = [
             {'customer_id': 2, 'user_id': 3, 'room_id': 4, 'check_in_date': datetime(2024, 1, 9, 17, 1),
-             'check_out_date': datetime(2024, 1, 19, 17, 1), 'deposit': 900000},
-            {'customer_id': 1, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2024, 3, 25, 17, 11),
-             'check_out_date': datetime(2024, 3, 29, 17, 11), 'deposit': 1500000},
+             'check_out_date': datetime(2024, 1, 19, 17, 1), 'deposit': 900000, 'total_amount': 1000000},
+            {'customer_id': 1, 'user_id': None, 'room_id': 2, 'check_in_date': datetime(2024, 3, 25, 17, 11),
+             'check_out_date': datetime(2024, 3, 29, 17, 11), 'deposit': 1500000, 'total_amount': 1000000},
             {'customer_id': 2, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2023, 12, 11, 17, 12),
-             'check_out_date': datetime(2023, 12, 21, 17, 12), 'deposit': 1500000},
+             'check_out_date': datetime(2023, 12, 21, 17, 12), 'deposit': 1500000, 'total_amount': 1000000},
             {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2024, 1, 9, 17, 1),
-             'check_out_date': datetime(2024, 2, 9, 17, 1), 'deposit': 1200000}]
+             'check_out_date': datetime(2024, 2, 9, 17, 1), 'deposit': 1200000, 'total_amount': 1000000}]
 
         for data in reservation_data:
             reservation = RoomReservationForm(**data)
@@ -273,3 +290,66 @@ if __name__ == '__main__':
 
         db.session.add(guest_2, guest_1)
         db.session.commit()
+        #         ==============================Thêm phiếu thuê======================================
+
+        rental_data = [
+            {'customer_id': 2, 'user_id': 3, 'room_id': 4, 'check_in_date': datetime(2024, 1, 9, 17, 1),
+             'check_out_date': datetime(2024, 1, 19, 17, 1), 'deposit': 900000, 'room_reservation_form_id': 1},
+            {'customer_id': 1, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2024, 3, 25, 17, 11),
+             'check_out_date': datetime(2024, 3, 29, 17, 11), 'deposit': 1500000},
+            {'customer_id': 2, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2023, 12, 11, 17, 12),
+             'check_out_date': datetime(2023, 12, 21, 17, 12), 'deposit': 1500000, 'room_reservation_form_id': 3},
+            {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2024, 1, 9, 17, 1),
+             'check_out_date': datetime(2024, 2, 9, 17, 1), 'deposit': 1200000}]
+        for r in rental_data:
+            rental = RoomRentalForm(**r)
+            db.session.add(rental)
+        db.session.commit()
+        #         ==============================Thêm RentalDetail======================================
+
+        rental_1 = db.session.query(RoomRentalForm).filter_by(customer_id=cus.cus_id).first()
+        rental_2 = db.session.query(RoomRentalForm).filter_by(customer_id=cus1.cus_id).first()
+
+        guest_3 = db.session.query(Guest).filter_by(id=u1.id).first()
+        guest_4 = db.session.query(Guest).filter_by(id=u2.id).first()
+
+        guest_3.room_rental_form.append(rental_1)
+        guest_3.room_rental_form.append(rental_2)
+        guest_4.room_rental_form.append(rental_2)
+
+        db.session.add(guest_3, guest_4)
+        db.session.commit()
+
+        #         ==============================Thêm hóa đơn======================================
+        bill_data = [{'user_id': 3, 'room_rental_form_id': 1, 'total_price': 2000000,
+                      'created_date': datetime(2023, 1, 19, 17, 1)},
+                     {'user_id': 3, 'room_rental_form_id': 2, 'total_price': 5000000,
+                      'created_date': datetime(2023, 1, 29, 17, 11)},
+                     {'user_id': 3, 'room_rental_form_id': 3, 'total_price': 4000000,
+                      'created_date': datetime(2023, 2, 19, 17, 11)},
+                     {'user_id': 3, 'room_rental_form_id': 4, 'total_price': 1000000,
+                      'created_date': datetime(2023, 4, 29, 17, 11)}]
+        for b in bill_data:
+            bill = Bill(**b)
+            db.session.add(bill)
+        db.session.commit()
+        #         ==============================Thêm cmt======================================
+        comment_data = [{'customer_id': 1, 'content': 'Phòng này quá ok <3', 'room_id': 1,
+                         'created_date': datetime(2024, 1, 9, 17, 1)},
+                        {'customer_id': 2, 'content': 'Cũng tàm tạm, cần nâng cấp dịch vụ phòng!', 'room_id': 2,
+                         'created_date': datetime(2024, 1, 9, 17, 1)},
+                        {'customer_id': 2, 'content': 'Sẽ ghé thăm vào lần sau nếu có dịp', 'room_id': 2,
+                         'created_date': datetime(2024, 1, 9, 17, 1)},
+                        {'customer_id': 1, 'content': 'Một căn phòng đáng trải nghiệm nhất tại khách sạn, 5 sau nhé',
+                         'room_id': 4,
+                         'created_date': datetime(2024, 1, 9, 17, 1)}]
+        for c in comment_data:
+            cmt = Comment(**c)
+            db.session.add(cmt)
+        db.session.commit()
+
+
+
+
+
+
