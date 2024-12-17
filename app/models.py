@@ -330,13 +330,13 @@ if __name__ == '__main__':
 
         #         ==============================Thêm hóa đơn======================================
         bill_data = [{'user_id': 3, 'room_rental_form_id': 1, 'total_price': 2000000,
-                      'created_date': datetime(2023, 1, 19, 17, 1)},
+                      'created_date': datetime(2024, 1, 19, 17, 1)},
                      {'user_id': 3, 'room_rental_form_id': 2, 'total_price': 5000000,
-                      'created_date': datetime(2023, 1, 29, 17, 11)},
+                      'created_date': datetime(2024, 3, 29, 17, 11)},
                      {'user_id': 3, 'room_rental_form_id': 3, 'total_price': 4000000,
-                      'created_date': datetime(2023, 2, 19, 17, 11)},
+                      'created_date': datetime(2023, 12, 21, 17, 11)},
                      {'user_id': 3, 'room_rental_form_id': 4, 'total_price': 1000000,
-                      'created_date': datetime(2023, 4, 29, 17, 11)}]
+                      'created_date': datetime(2024, 2, 9, 17, 11)}]
         for b in bill_data:
             bill = Bill(**b)
             db.session.add(bill)

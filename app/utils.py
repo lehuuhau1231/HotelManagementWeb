@@ -27,29 +27,23 @@ def total_price(price, day, length, list_customer_type, room_id):
     return total
 
 
-
-
-def revenue_statistics(kw=None, year=None, month=None, from_date=None, to_date=None):
+def revenue_statistics(kw=None, year=None, month=None):
     with app.app_context():
-        # Tính tổng số bill và lọc
-        if not kw and not year and not month and not from_date and not to_date:
-            count_bill = Bill.query.count()
-        elif from_date:  # lọc theo ngày bắt đầu
-            count_bill = Bill.query.filter(
-                Bill.created_date.__ge__(from_date)).count()  # __ge__: >=
-        elif to_date:  # lọc theo ngày kết thúc
-            count_bill = Bill.query.filter(
-                Bill.created_date.__le__(to_date)).count()  # __le__:<=
-        elif kw:  # lọc theo từ khóa
-            count_bill = Bill.query.count()
+        #Tính tổng số bill và lọc
+        if not kw and not year and not month :
+            count_bill=Bill.query.count()
+        elif kw:#lọc theo từ khóa
+            count_bill=Bill.query.count()
         elif month:
-            count_bill = Bill.query.filter(
-                extract('month', Bill.created_date) == month)
+            count_bill=Bill.query.filter(
+                extract('month',Bill.created_date)==month)
             if year:
-                count_bill = count_bill.filter(extract('year', Bill.created_date) == year)
-            count_bill = count_bill.count()
+                count_bill=count_bill.filter(extract('year', Bill.created_date) == year)
+            count_bill=count_bill.count()
         else:
-            count_bill = Bill.query.filter(extract('year', Bill.created_date) == year).count()
+            count_bill=Bill.query.filter(extract('year',Bill.created_date)==year).count()
+
+
 
         revenue = db.session.query(
             RoomType.name,
@@ -63,89 +57,73 @@ def revenue_statistics(kw=None, year=None, month=None, from_date=None, to_date=N
             .group_by(RoomType.name) \
             .order_by(RoomType.id)
 
-        # lọc doanh thu
+        #lọc doanh thu
         if month:
             revenue = revenue.filter(
                 extract('month', Bill.created_date) == month)
 
         if year:
-            revenue = revenue.filter(
-                extract('year', Bill.created_date) == year)
+            revenue  = revenue .filter(
+                extract('year',Bill.created_date) == year)
 
         if kw:
-            revenue = revenue.filter(
+            revenue  = revenue .filter(
                 RoomType.name.contains(kw))
 
-        if from_date:
-            revenue = revenue.filter(
-                Bill.created_date.__ge__(from_date))
-
-        if to_date:
-            revenue = revenue.filter(
-                Bill.created_date.__le__(to_date))
 
         return revenue.all()
 
-
-def stats(kw=None, year=None, month=None, from_date=None, to_date=None):
-    with (app.app_context()):
-        total_days = db.session.query(func.coalesce(func.sum(
-            extract('day', RoomRentalForm.check_out_date) - extract('day', RoomRentalForm.check_in_date)))
+def stats(kw=None, year=None, month=None):
+    with app.app_context():
+        # Tính tổng số ngày thuê phòng
+        total_days = db.session.query(
+            func.coalesce(func.sum(
+                func.datediff(RoomRentalForm.check_out_date, RoomRentalForm.check_in_date)
+            ), 0)
         ).join(Bill, Bill.room_rental_form_id.__eq__(RoomRentalForm.id), isouter=True)
 
-        if not kw and not year and not month and not from_date and not to_date:
-            count_days = total_days.count()
-        elif from_date:
-            count_days = total_days.query.filter(
-                Bill.created_date.__ge__(from_date)).count()  # __ge__: >=
-        elif to_date:
-            count_days = total_days.query.filter(
-                Bill.created_date.__ge__(to_date)).count()  # __le__:<=
-        elif kw:
-            count_days = total_days.count()
-        elif month:
-            count_days = total_days.filter(
-                extract('month', Bill.created_date) == month)
-            if year:
-                count_days = count_days.filter(
-                    extract('year', Bill.created_date) == year)
-            count_days = total_days.count()
-        else:
-            count_days = total_days.query.filter(extract('year', Bill.created_date) == year).count()
-
-        stats = db.session.query(
-            Room.name,
-            func.coalesce(func.sum(
-                extract('day', RoomRentalForm.check_out_date) - extract('day', RoomRentalForm.check_in_date))),
-            func.cast(
-                func.sum(
-                    ((extract('day', RoomRentalForm.check_out_date) - extract('day',
-                                                                              RoomRentalForm.check_in_date)) / count_days) * 100
-                ), Numeric(5, 2)
-            )
-        ).join(RoomRentalForm, RoomRentalForm.room_id == Room.id, isouter=True) \
-            .join(Bill, Bill.room_rental_form_id.__eq__(RoomRentalForm.id), isouter=True) \
-            .group_by(Room.name)
-
         if month:
-            stats = stats.filter(
+            total_days = total_days.filter(
                 extract('month', Bill.created_date) == month)
-
         if year:
-            stats = stats.filter(
-
+            total_days = total_days.filter(
                 extract('year', Bill.created_date) == year)
 
+        # Lấy tổng số ngày thuê
+        total_days_result = total_days.first() #Lấy kết quả đầu tiên của truy vấn.
+        total = total_days_result[0] if total_days_result else 0 # Truy cập giá trị tổng số ngày thuê (do truy vấn trả về một tuple
+                                                                 # Nếu không có kết quả, đặt total=0
+
+        # print(f"Tổng số ngày thuê phòng: {total} ngày")
+
+        # Truy vấn thống kê chi tiết từng phòng
+        stats_query = db.session.query(
+            Room.name,
+            func.coalesce(func.sum(
+                func.datediff(RoomRentalForm.check_out_date, RoomRentalForm.check_in_date)
+            ), 0),
+            func.round((
+                    func.coalesce(func.sum(
+                        func.datediff(RoomRentalForm.check_out_date, RoomRentalForm.check_in_date)
+                    ), 0) / total * 100
+            ), 2) #func.round hiện 2 số sau dấu phẩy
+        ).join(RoomRentalForm, RoomRentalForm.room_id == Room.id, isouter=True)\
+        .join(Bill, Bill.room_rental_form_id.__eq__(RoomRentalForm.id), isouter=True)\
+        .group_by(Room.name)
+
+        # Bộ lọc theo điều kiện
+        if month:
+            stats_query = stats_query.filter(
+                extract('month', Bill.created_date) == month)
+        if year:
+            stats_query = stats_query.filter(
+                extract('year', Bill.created_date) == year)
         if kw:
-            stats = stats.filter(
+            stats_query = stats_query.filter(
                 RoomType.name.contains(kw))
 
-        if from_date:
-            stats = stats.filter.filter(
-                Bill.created_date.__ge__(from_date))
+        # Trả về kết quả
+        return stats_query.all()
 
-        if to_date:
-            stats = stats.filter.filter(
-                Bill.created_date.__le__(to_date))
 
-        return stats.all()
+print(stats())
