@@ -38,6 +38,8 @@
             </div>
         </div>
         <form action="/reservation" method="post" class="container mt-5">
+            <div class="popup"></div>
+
             <div class="row">
                 <!-- Room Details -->
                 <div class="col-md-4">
@@ -62,15 +64,23 @@
                                     {% if current_user.role|string == 'Role.CUSTOMER' %}
                                         <div class="d-flex align-items-center justify-content-between">
                                             <span style="font-style: italic">Auto fill your information</span>
+                                            {#                                            <label class="switch" style="transform: scale(0.8);">#}
+                                            {#                                                <input class="cb" type="checkbox"/>#}
+                                            {#                                                <span class="toggle"#}
+                                            {#                                                      onclick="autoFill('{{ name }}',#}
+                                            {#                                                              '{{ identification_card }}',#}
+                                            {#                                                              '{{ customer_type }}')">#}
+                                            {#                                            <span class="left">off</span>#}
+                                            {#                                            <span class="right">on</span>#}
+                                            {#                                            </span>#}
+                                            {#                                            </label>#}
                                             <label class="switch" style="transform: scale(0.8);">
-                                                <input class="cb" type="checkbox"/>
-                                                <span class="toggle"
+                                                <input class="cb" type="checkbox">
+                                                <span class="slider"
                                                       onclick="autoFill('{{ name }}',
                                                               '{{ identification_card }}',
                                                               '{{ customer_type }}')">
-                                            <span class="left">off</span>
-                                            <span class="right">on</span>
-                                        </span>
+                                                </span>
                                             </label>
                                         </div>
                                     {% endif %}
@@ -110,13 +120,13 @@
                         <div class="col-md-6 mb-3">
                             <label for="checkin" class="form-label">Check-in:</label>
                             <input type="datetime-local" id="checkin" class="form-control rounded-0 text-center"
-                                   style="background: #D9D9D9;" min="{{ current_datetime }}"
-                                   value="{{ current_datetime }}">
+                                   style="background: #D9D9D9;"
+                                   value="{{ checkin }}" readonly>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="checkout" class="form-label">Check-out:</label>
                             <input type="datetime-local" id="checkout" class="form-control rounded-0 text-center"
-                                   style="background: #D9D9D9; " min="{{ current_datetime }}" required>
+                                   style="background: #D9D9D9; " value="{{ checkout }}" readonly>
                         </div>
                     </div>
                     <div class="text-end">

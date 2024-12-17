@@ -43,6 +43,7 @@ class CustomerType(Base):
     # user = relationship('User', backref='customer_type', lazy=True)
     customer_regulation = relationship('CustomerRegulation', backref='customer_type', lazy=True)
     customer = relationship('Customer', backref='customer_type', lazy=True)
+    guest = relationship('Guest', backref='customer_type', lazy=True)
 
 
 class Customer(User):
@@ -62,9 +63,9 @@ class Guest(Base):
     identification_card = Column(String(12), nullable=False, unique=True)
     customer_type_id = Column(Integer, ForeignKey(CustomerType.id), nullable=False, default=1)
     room_reservation_form = relationship('RoomReservationForm', secondary='reservation_detail', lazy='subquery',
-                                         backref='guests')
+                                         backref='guest')
     room_rental_form = relationship('RoomRentalForm', secondary='rental_detail', lazy='subquery',
-                                    backref='guests')
+                                    backref='guest')
 
 
 class RoomType(Base):
@@ -148,6 +149,7 @@ rental_detail = db.Table('rental_detail',
                          Column('guest_id', Integer, ForeignKey(Guest.id)),
                          Column('rental_id', Integer, ForeignKey(RoomRentalForm.id)))
 
+
 if __name__ == '__main__':
     with app.app_context():
         db.drop_all()
@@ -173,7 +175,12 @@ if __name__ == '__main__':
                         email='quynhhuongtran@gmail.com', phone='0941166036', gender=2,
                         identification_card='085387417586', customer_type_id=1)
 
-        db.session.add_all([user1, cus, user2, cus1])
+        cus2 = Customer(name='Lê Hữu Hậu', username='hau',
+                        password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
+                        email='lehuuhau004@gmail.com', phone='0941166006', gender=2,
+                        identification_card='085387417581', customer_type_id=1)
+
+        db.session.add_all([user1, cus, user2, cus1, cus2])
         db.session.commit()
 
         #         ==============================Thêm loại phòng======================================
@@ -260,7 +267,10 @@ if __name__ == '__main__':
             {'customer_id': 2, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2023, 12, 11, 17, 12),
              'check_out_date': datetime(2023, 12, 21, 17, 12), 'deposit': 1500000, 'total_amount': 1000000},
             {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2024, 1, 9, 17, 1),
-             'check_out_date': datetime(2024, 2, 9, 17, 1), 'deposit': 1200000, 'total_amount': 1000000}]
+             'check_out_date': datetime(2024, 2, 9, 17, 1), 'deposit': 1200000, 'total_amount': 1000000},
+            {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2024, 12, 14, 17, 1),
+             'check_out_date': datetime(2024, 12, 16, 17, 1), 'deposit': 1200000, 'total_amount': 1000000}
+        ]
 
         for data in reservation_data:
             reservation = RoomReservationForm(**data)

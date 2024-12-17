@@ -1,25 +1,51 @@
 import hashlib
-from app.models import User, Room, RoomType, Customer, CustomerType, Guest, RoomReservationForm
+from app.models import User, Room, RoomType, Customer, CustomerType, Guest, RoomReservationForm, RoomRentalForm
 from app import db, app
 import cloudinary.uploader
-from sqlalchemy import or_
+from sqlalchemy import or_, desc
 import hmac
 from urllib.parse import urlencode
 import urllib.parse
 
 
-def auth_user(username, password):
-    password = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
-    return User.query.filter(User.username.__eq__(username), User.password.__eq__(password)).first()
+
+def check_room_availability(checkin, checkout, room_id):
+    room_reservation = RoomReservationForm.query.filter(RoomReservationForm.room_id == room_id).all()
+    room_rental = RoomRentalForm.query.filter(RoomRentalForm.room_id == room_id).all()
+    is_available = True
+
+    for room in room_reservation:
+        if not ((checkin > room.check_out_date) or (checkout < room.check_in_date)):
+            is_available = False
+            break
+
+    if is_available:
+        for room in room_rental:
+            if not ((checkin > room.check_out_date) or (checkout < room.check_in_date)):
+                is_available = False
+                break
+
+    return is_available
+
+
+def auth_user(username, password, role=None):
+    password = str(hashlib.md5(password.encode('utf-8')).hexdigest())
+
+    u = User.query.filter(User.username.__eq__(username),
+                          User.password.__eq__(password))
+    if role:
+        u = u.filter(User.role.__eq__(role))
+
+    return u.first()
 
 
 def get_user_by_id(user_id):
     return User.query.get(user_id)
 
 
-def get_customer_by_account(account):
+def get_customer_by_account(table, account):
     account = account.strip()
-    return Customer.query.filter(or_(Customer.username == account, Customer.email == account)).first()
+    return table.query.filter(or_(table.username == account, table.email == account)).first()
 
 
 def add_customer(name, username, password, email, phone, avatar, gender, identification, type):
@@ -29,7 +55,7 @@ def add_customer(name, username, password, email, phone, avatar, gender, identif
     else:
         type = 2
     user = Customer(name=name, username=username, password=password, email=email, phone=phone, gender=gender
-                ,identification_card=identification, customer_type_id=type)
+                    , identification_card=identification, customer_type_id=type)
     if avatar:
         upload_result = cloudinary.uploader.upload(avatar)
         user.avatar = upload_result.get('secure_url')
@@ -37,8 +63,8 @@ def add_customer(name, username, password, email, phone, avatar, gender, identif
     db.session.commit()
 
 
-def existence_check(attribute, value):
-    return Customer.query.filter(getattr(Customer, attribute).__eq__(value)).first()
+def existence_check(table, attribute, value):
+    return table.query.filter(getattr(table, attribute).__eq__(value)).first()
 
 
 def change_password(user_id, new_password):
@@ -48,22 +74,38 @@ def change_password(user_id, new_password):
         user.password = new_password
         db.session.commit()
 
-        
-def load_room(page=None, room_type=None, room_id=None):
+
+def load_room(checkin=None, checkout=None, page=None, room_type=None, room_id=None):
     rooms = Room.query
 
     if room_type:
         rooms = rooms.join(RoomType).filter(RoomType.name == room_type)
 
+    new_room = []
+    if checkin and checkout:
+        if checkin <= checkout:
+            for room in rooms:
+                if check_room_availability(checkin, checkout, room.id):
+                    new_room.append(room)
+
+            # Thêm logic phân trang cho new_room
+            if page:
+                page_size = app.config["PAGE_SIZE"]
+                start = (page - 1) * page_size
+                end = start + page_size
+                return new_room[start:end], len(new_room)
+            return new_room, len(new_room)
+
     if room_id:
         return rooms.filter(Room.id == room_id).first()
 
+    length = rooms.count()
     if page:
         page_size = app.config["PAGE_SIZE"]
         start = (page - 1) * page_size
         rooms = rooms.slice(start, start + page_size)
 
-    return rooms.all()
+    return rooms.all(), length
 
 
 def count_room():
@@ -97,6 +139,10 @@ def add_room_reservation_form(data, customer_id, user_id=None):
                                                     deposit=data['deposit'], total_amount=data['total_amount'],
                                                     room_id=data['room_id'], customer_id=customer_id)
     db.session.add(room_reservation_form)
+
+
+def get_room_reservation_form():
+    return RoomReservationForm.query.order_by(desc(RoomReservationForm.id)).first()
 
 
 class vnpay:
