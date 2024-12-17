@@ -1,18 +1,15 @@
 import re
 from datetime import date, datetime
 from warnings import catch_warnings
-from flask import render_template, request, redirect, flash, session, url_for
 from sqlalchemy.orm import joinedload
-from app import app, dao, login_manager, db, admin
-from flask_login import login_user, logout_user, current_user
 from app.admin import MyView
 from app.dao import get_user_by_id
 from app.models import Role, User, Customer
 from flask import render_template, request, redirect, flash, session, jsonify, url_for
 from sqlalchemy.sql.functions import current_date
 from app.models import Guest, RoomReservationForm
-from app import app, dao, login_manager, utils, VNPAY_CONFIG, db
-from flask_login import login_user, logout_user, login_required
+from app import app, dao, login_manager, utils, VNPAY_CONFIG, db, admin
+from flask_login import login_user, logout_user, login_required, current_user
 import smtplib
 import random
 import math
@@ -193,9 +190,7 @@ def booking():
 
     list_customer_type = dao.get_customer_type()
 
-    return render_template('booking.html', date_today=date_today, room=room, name=customer.name,
-                           identification_card=customer.identification_card
-                           , customer_type=customer.customer_type.type, list_customer_type=list_customer_type)
+
     return render_template('booking.html', current_datetime=current_datetime, room=room, name=customer.name,
                            identification_card=customer.identification_card
                            , customer_type=customer.customer_type.type, list_customer_type=list_customer_type)
@@ -252,19 +247,6 @@ def check_account():
     return jsonify({
         'success': False
     })
-
-
-@app.route('/reservation', methods=['GET', 'POST'])
-def reservation():
-    room_id = request.args.get('room_id')
-    room = dao.load_room(room_id=room_id)
-
-    username = session.get('username')
-    customer = dao.get_customer_by_account(username)
-
-    length = len(session.get('guest'))
-
-    return render_template('reservation.html', room=room, customer=customer, length=length)
 
 
 @app.route('/payment', methods=['GET', 'POST'])
@@ -374,7 +356,6 @@ def account():
 @app.route('/account/edit', methods=['GET', 'POST'])
 def edit_account():
     user_id = session.get('_user_id')
-    user = get_user_by_id(user_id)
     print(session)
     user = db.session.query(User).options(joinedload(User.customer)).filter_by(id=user_id).first()
     if '_user_id' not in session:
@@ -443,6 +424,11 @@ def reservation():
 @app.route('/admin/')
 def admin():
     return MyView().render('admin/index.html')
+
+
+@app.route('/rental_history')
+def history():
+    return render_template('rental_history.html')
 
 
 if __name__ == '__main__':
