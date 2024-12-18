@@ -1,10 +1,22 @@
 {% extends 'admin/master.html' %}
 
 {% block body %}
-{% if current_user.is_authenticated %}
-    <div class="container mt-5">
-        <h1>Welcome {{ current_user.name }} the Adminpage</h1>
-        <h2>This is a Admin website</h2>
-    </div>
-{% endif %}
+    {% if current_user.is_authenticated and current_user.role|string == 'Role.ADMIN'%}
+        <h1 class="text-success">CHÀO MỪNG {{ current_user.username }} ĐẾN TRANG QUẢN TRỊ HotelWeb</h1>
+    {% else %}
+        <h1 class="text-center text-success mt-1">Đăng nhập quản trị</h1>
+        <form method="post" action="/login-admin">
+            <div class="form-floating mb-3 mt-3">
+                <input type="text" class="form-control" id="username" placeholder="Họ tên" name="username">
+                <label for="username">Tên đăng nhập</label>
+            </div>
+            <div class="form-floating mb-3 mt-3">
+                <input type="password" class="form-control" id="password" placeholder="Mật khẩu" name="password">
+                <label for="password">Mật khẩu</label>
+            </div>
+            <div class="form-floating mb-3 mt-3">
+                <button type="submit" class="btn btn-success">Đăng nhập</button>
+            </div>
+        </form>
+    {% endif %}
 {% endblock %}

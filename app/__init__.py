@@ -23,7 +23,7 @@ cloudinary.config(
 
 VNPAY_CONFIG = {
     'vnp_TmnCode': 'RC52CA8T',
-    'vnp_HashSecret': 'HA8UIHW181SUFMHZ42GN5ERAN89CA1KP',
+    'vnp_HashSecret': '0F67MDQPA2ANUFVUMVRBXV9X5Z5V9TB4',
     'vnp_Url': 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
     "vnp_ReturnUrl": "http://localhost:5000/vnpay_return"
 }

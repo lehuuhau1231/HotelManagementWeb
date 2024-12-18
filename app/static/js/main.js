@@ -1,3 +1,51 @@
+function alert(title, message) {
+    return  `
+        <!-- The Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+
+              <!-- Modal Header -->
+              <div class="modal-header">
+                <h4 class="modal-title">${title}</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+
+              <!-- Modal body -->
+              <div class="modal-body">
+                ${message}
+              </div>
+
+              <!-- Modal footer -->
+              <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+              </div>
+
+            </div>
+          </div>
+        </div>`
+}
+
+function validateDataDate(event, checkin, checkout) {
+    event.preventDefault();
+    console.log("2")
+    if (checkin && checkout) {
+        console.log("1")
+        let checkinDate = new Date(checkin);
+        let checkoutDate = new Date(checkout);
+
+        if (checkinDate > checkoutDate) {
+            console.log("2")
+            let popup = document.querySelector('.popup');
+            popup.innerHTML = alert("Alert", "Please fill in both check-in and check-out dates.");
+            var myModal = new bootstrap.Modal(document.getElementById('myModal'));
+            myModal.show();
+        } else {
+            event.target.submit();
+        }
+    }
+}
+
 function loginRequired() {
     let popup = document.querySelector(".popup")
     popup.innerHTML = `
@@ -5,18 +53,18 @@ function loginRequired() {
         <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
-        
+
               <!-- Modal Header -->
               <div class="modal-header">
                 <h4 class="modal-title">Please Login</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-        
+
               <!-- Modal body -->
               <div class="modal-body">
                 You must be logged in to book your hotel.
               </div>
-        
+
               <!-- Modal footer -->
               <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
@@ -24,7 +72,7 @@ function loginRequired() {
                 </button>
                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
               </div>
-        
+
             </div>
           </div>
         </div>`
@@ -32,10 +80,43 @@ function loginRequired() {
     myModal.show();
 }
 
+function checkRoomAvailability(roomId) {
+    let checkin = document.getElementById('check-in').value;
+    let checkout = document.getElementById('check-out').value;
+    let popup = document.querySelector(".popup")
+
+
+
+    if (!checkin || !checkout) {
+        popup.innerHTML = alert("Alert", "Please fill in both check-in and check-out dates.");
+        var myModal = new bootstrap.Modal(document.getElementById('myModal'));
+        myModal.show();
+        return;
+    }
+
+    fetch('/api/check_room_availability', {
+        method: 'POST',
+        body: JSON.stringify({
+            'room_id': roomId,
+            'checkin': checkin,
+            'checkout': checkout
+        }),
+        headers: {'Content-Type': 'application/json'}
+    }).then(res => res.json()).then(data => {
+        if (data.isAvailable) {
+            window.location.href = `/booking/?room_id=${roomId}`;
+        } else {
+            popup.innerHTML = alert('Please choose another room.', 'The room has been booked or rented.')
+            var myModal = new bootstrap.Modal(document.getElementById('myModal'));
+            myModal.show();
+        }
+    })
+}
+
 let count = 1;
 
 function addCustomer() {
-    if(count <= 2) {
+    if (count <= 2) {
         count += 1
         let customer = document.querySelector(".list-customer");
         customer.insertAdjacentHTML("beforeend", `
@@ -43,7 +124,7 @@ function addCustomer() {
             <div class="p-3 customer-update" style="background: #D9D9D9;">
                 <div class="row">
                     <h6 class="col-md-9"">Customer ${count}:</h6>
-                    <button type="button" class="btn btn-danger col-md-3 delete-customer">Delete</button>
+                    <button type="button" class="btn btn-danger col-md-3 delete-customer p-0">Delete</button>
                 </div>
                 <div class="mb-2">
                     <label for="name" class="form-label">Name:</label>
@@ -69,27 +150,26 @@ function addCustomer() {
         let info = document.querySelector(".info")
         info.style.display = "block";
     }
-    var myModal = new bootstrap.Modal(document.getElementById('myModal'));
-    myModal.show();
 }
 
 //======================Delete Customer==================================
 let deleteCustomer = document.querySelector(".list-customer");
 
 deleteCustomer.addEventListener("click", function (event) {
-    if(event.target.classList.contains("delete-customer")) {
+    if (event.target.classList.contains("delete-customer")) {
         event.target.closest(".customer-item").remove();
         count--;
         updateCustomer();
     }
 });
+
 //======================End Delete Customer==================================
 
 function updateCustomer() {
     let listCustomer = document.querySelectorAll(".customer-item")
     listCustomer.forEach((item, index) => {
-        if(index > 0) {//Bỏ customer đầu mặc định đã đăng kí tài khoản
-            customerNumber = index + 1;
+        if (index > 0) {//Bỏ customer đầu mặc định đã đăng kí tài khoản
+            let customerNumber = index + 1;
             item.querySelector(".row > h6").textContent = `Customer ${customerNumber}`;
         }
     })
@@ -115,6 +195,7 @@ window.onload = function () {
         }))
     }
 }
+
 //==================================Auto Fill====================================
 function autoFill(name, identification_card, customer_type) {
     let checked = document.querySelector(".cb")
@@ -142,6 +223,7 @@ function autoFill(name, identification_card, customer_type) {
                             <option value="Foreign">Foreign</option>`;
     }
 }
+
 //===============================Validate CCCD====================================
 function validate(event, roomId) {
     event.preventDefault();
@@ -155,7 +237,7 @@ function validate(event, roomId) {
 
     for (let i = 0; i < inputId.length; i++) {
         let value = inputId[i].value.trim();
-        if(value && arrayId.includes(value)) {
+        if (value && arrayId.includes(value)) {
             console.log('sai');
             error.style.display = "block";
             valid = false;
@@ -167,7 +249,7 @@ function validate(event, roomId) {
         }
     }
 
-    if(valid) {
+    if (valid) {
         inputId.forEach(input => {
             const errorMessage = input.nextElementSibling;
             if (/^\d{12}$/.test(input.value) || /^\d{9}$/.test(input.value) || /^[a-zA-Z][a-zA-Z0-9]{7}$/.test(input.value)) {
@@ -209,33 +291,8 @@ function validate(event, roomId) {
                     window.location.pathname = '/reservation';
                 } else {
                     let popup = document.querySelector('.popup')
-                    popup.insertAdjacentHTML("beforeend", `
-                    <!-- The Modal -->
-                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
-                      <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                    
-                          <!-- Modal Header -->
-                          <div class="modal-header">
-                            <h4 class="modal-title">Regulation</h4>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                          </div>
-                    
-                          <!-- Modal body -->
-                          <div class="modal-body">
-                            When booking a room, the information of a person who has already registered an
-                                    account in the system must be entered.
-                          </div>
-                    
-                          <!-- Modal footer -->
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                          </div>
-                    
-                        </div>
-                      </div>
-                    </div>
-                `);
+                    popup.innerHTML = alert('Regulation',
+                        'When booking a room, the information of a person who has already registered an account in the system must be entered.')
                     var myModal = new bootstrap.Modal(document.getElementById('myModal'));
                     myModal.show();
                 }

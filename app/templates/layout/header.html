@@ -1,7 +1,7 @@
 <header class="text-white fs-5">
     <nav class="navbar navbar-expand-lg navbar-dark" style="background: #0C0F24;">
         <div class="container-fluid">
-            <a class="navbar-brand p-0 m-0" href="/?page=1"><img src="{{ url_for('static', filename='images/logo.jpg') }}"
+            <a class="navbar-brand p-0 m-0" href="/"><img src="{{ url_for('static', filename='images/logo.jpg') }}"
                                                           alt="Hotel Image" class="img-fluid"
                                                           style="height: 100px; width: auto;"></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -10,15 +10,12 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    {% if current_user.role|string == 'Role.CUSTOMER' %}
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="/?page=1">Home</a>
                     </li>
+                    {% if current_user.role|string == 'Role.CUSTOMER' %}
                     <li class="nav-item">
                         <a class="nav-link" href="/account">Account</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/rental_history">Rental History</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -33,7 +30,7 @@
                     {% endif %}
                     {% if current_user.role|string == 'Role.RECEPTIONIST' %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/nvxemphong">Receptionist button</a>
+                        <a class="nav-link" href="/nvcheckin">Receptionist button</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/account">Account</a>

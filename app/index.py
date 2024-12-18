@@ -1,29 +1,43 @@
 import re
 from datetime import date, datetime
 from warnings import catch_warnings
-from sqlalchemy.orm import joinedload
-from app.admin import MyView
-from app.dao import get_user_by_id
-from app.models import Role, User, Customer
 from flask import render_template, request, redirect, flash, session, jsonify, url_for
-from sqlalchemy.sql.functions import current_date
-from app.models import Guest, RoomReservationForm
-from app import app, dao, login_manager, utils, VNPAY_CONFIG, db, admin
+from sqlalchemy.orm import joinedload
+from app.models import Guest, RoomReservationForm, Customer, Role, User
+from app import app, dao, login_manager, utils, VNPAY_CONFIG, db
 from flask_login import login_user, logout_user, login_required, current_user
 import smtplib
 import random
 import math
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 
 @app.route('/')
 def index():
     current_datetime = datetime.now().strftime('%Y-%m-%dT%H:%M')
+    checkin = request.args.get('checkin')
+    checkout = request.args.get('checkout')
+    room_type = request.args.get('room-type')
+    popup = False
+
+    if checkin:
+        checkin = datetime.strptime(checkin, '%Y-%m-%dT%H:%M')
+    if checkout:
+        checkout = datetime.strptime(checkout, '%Y-%m-%dT%H:%M')
+
+    if checkin and checkout:
+        if checkin > checkout:
+            popup = True
 
     page = request.args.get('page', 1, type=int)
 
-    rooms = dao.load_room(page=page)
-    count_room = math.ceil(dao.count_room() / app.config["PAGE_SIZE"])
-    return render_template('index.html', current_datetime=current_datetime, rooms=rooms, count_room=count_room)
+    rooms, length = dao.load_room(checkin=checkin, checkout=checkout, page=page, room_type=room_type)
+    count_room = math.ceil(length / app.config["PAGE_SIZE"])
+
+    return render_template('index.html', popup=popup, current_datetime=current_datetime, rooms=rooms,
+                           count_room=count_room
+                           , checkin=checkin, checkout=checkout, room_type=room_type)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -34,19 +48,17 @@ def login():
         password = request.form.get('password')
 
         user = dao.auth_user(username, password)
-        if user.role == Role.CUSTOMER:
+        if user:
             login_user(user)
             session['username'] = user.username
-            return redirect('/')
-        elif user.role == Role.ADMIN:
-            login_user(user)
-            session['username'] = user.username
-            return  redirect(url_for('admin'))
-        elif user.role == Role.RECEPTIONIST:
-            login_user(user)
-            return redirect(url_for('nvxemphong'))
+            if user.role == Role.ADMIN:
+                return redirect('/admin')
+            elif user.role == Role.RECEPTIONIST:
+                return redirect('/')
+            else:
+                return redirect('/')
         else:
-            err_message = 'username or password incorrect'
+            err_message = 'username or password is incorrect'
 
     return render_template('login.html', err_message=err_message)
 
@@ -55,6 +67,17 @@ def login():
 def logout():
     logout_user()
     return redirect('/')
+
+
+@app.route('/login-admin', methods=['post'])
+def login_admin_process():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    user = dao.auth_user(username=username, password=password, role=Role.ADMIN)
+    if user:
+        login_user(user=user)
+
+    return redirect('/admin')
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -77,7 +100,7 @@ def register():
                 or re.fullmatch(r'[a-z][a-z0-9]{7}', identification_card, re.IGNORECASE)):
             error_message['err_identification_card'] = 'Identification card is invalid.'
 
-        if dao.existence_check('username', username_value):
+        if dao.existence_check(Customer, 'username', username_value):
             error_message['err_username'] = 'Username is already taken.'
 
         if not re.fullmatch(regex_username, username_value):
@@ -88,12 +111,12 @@ def register():
 
         if '@' not in email_value:
             error_message['err_email'] = 'Email is invalid.'
-        elif dao.existence_check('email', email_value):
+        elif dao.existence_check(Customer, 'email', email_value):
             error_message['err_email'] = 'Email is already taken.'
 
         if len(phone_value) < 7 or len(phone_value) > 15:
             error_message['err_phone'] = 'Phone number must be between 7-15 digits.'
-        elif dao.existence_check('phone', phone_value):
+        elif dao.existence_check(Customer, 'phone', phone_value):
             error_message['err_phone'] = 'Phone number is already taken.'
 
         if error_message:
@@ -121,13 +144,13 @@ def load_user(user_id):
 def forgot_password():
     err_message = ''
     step = int(request.form.get('step', '1'))
-
+    # chưa lấy lại được tài khoản User
     if request.method.__eq__('POST'):
         if step == 1:
             account = request.form.get('account')
-            user = dao.get_customer_by_account(account)
-            session['user_id'] = user.id
+            user = dao.get_customer_by_account(User, account)
             if user:
+                session['user_id'] = user.id
                 send_email(user)
                 return render_template('forgotPassword.html', step=2)
             else:
@@ -171,11 +194,136 @@ def send_email(user):
         server.quit()
 
 
+def send_reservation_form():
+    email_sender = 'lehuuhau005@gmail.com'
+
+    room_reservation_form = dao.get_room_reservation_form()
+    guests = room_reservation_form.guest
+    customer = room_reservation_form.customer
+    print(room_reservation_form, guests, customer)
+    table_guest = ""
+    for idx, guest in enumerate(guests, start=2):
+        table_guest += f"""
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 10px;">{idx}</td>
+                <td style="border: 1px solid #ddd; padding: 10px;">{guest.name}</td>
+                <td style="border: 1px solid #ddd; padding: 10px;">{guest.customer_type.type}</td>
+                <td style="border: 1px solid #ddd; padding: 10px;">{guest.identification_card}</td>
+            </tr>
+        """
+
+    html_content = f"""
+    <!DOCTYPE html>
+        <html>
+            <head>
+                <title>Reservation Information</title>
+            </head>
+            <body style="font-family: Arial, sans-serif;">
+                <!-- Header -->
+                <h2 style="text-align: center; color: #333;">Reservation Details</h2>
+            
+                <!-- Reservation Information -->
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <thead>
+                        <tr style="background-color: #f2f2f2;">
+                            <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">
+                                Booking: {customer.name}
+                            </th>
+                            <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">
+                                Room: {room_reservation_form.room.id}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">
+                                Check-in time: {room_reservation_form.check_in_date}
+                            </td>
+                            <td style="border: 1px solid #ddd; padding: 10px; text-align: left;">
+                                Check-out time: {room_reservation_form.check_out_date}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            
+                <!-- Customer Table -->
+                <h3 style="margin-top: 20px; color: #333;">Customer Details</h3>
+                <table style="width: 100%; border-collapse: collapse; text-align: center;">
+                    <thead>
+                        <tr style="background-color: #f2f2f2;">
+                            <th style="border: 1px solid #ddd; padding: 10px;">Order</th>
+                            <th style="border: 1px solid #ddd; padding: 10px;">Customer</th>
+                            <th style="border: 1px solid #ddd; padding: 10px;">Customer-type</th>
+                            <th style="border: 1px solid #ddd; padding: 10px;">Identification</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 10px;">1</td>
+                            <td style="border: 1px solid #ddd; padding: 10px;">{customer.name}</td>
+                            <td style="border: 1px solid #ddd; padding: 10px;">{customer.customer_type.type}</td>
+                            <td style="border: 1px solid #ddd; padding: 10px;">{customer.identification_card}</td>
+                        </tr>
+                        {table_guest}
+                    </tbody>
+                </table>
+            
+                <!-- Total Price -->
+                <div style="margin-top: 20px; font-size: 16px;">
+                    <p><strong>Total Price:</strong> {room_reservation_form.total_amount}$</p>
+                    <p style="color: green;"><strong>Paid:</strong> {room_reservation_form.deposit}$</p>
+                </div>
+            </body>
+        </html>
+
+        """
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = "Room Reservation Form"
+    msg["From"] = email_sender
+    msg["To"] = customer.email
+
+    part = MIMEText(html_content, "html")
+    msg.attach(part)
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(email_sender, 'wsja hdjk nfvn boih')
+        print(customer.email)
+        server.sendmail(email_sender, customer.email, msg.as_string())
+        print("done")
+    except Exception as e:
+        print("Send mail ERROR: ", e)
+    finally:
+        server.quit()
+
+
 @app.route('/room-detail/')
 def room_detail():
     room_id = request.args.get('room_id')
     room = dao.load_room(room_id=room_id)
-    return render_template('roomdetail.html', room=room)
+    current_datetime = datetime.now().strftime('%Y-%m-%dT%H:%M')
+
+    return render_template('roomdetail.html', room=room, current_datetime=current_datetime)
+
+
+@app.route('/api/check_room_availability', methods=['POST'])
+def check_room_availability():
+    room_id = request.json.get('room_id')
+    checkin = request.json.get('checkin')
+    checkout = request.json.get('checkout')
+
+    session['checkin'] = checkin
+    session['checkout'] = checkout
+
+    checkin = datetime.strptime(checkin, '%Y-%m-%dT%H:%M')
+    checkout = datetime.strptime(checkout, '%Y-%m-%dT%H:%M')
+    is_available = dao.check_room_availability(checkin=checkin, checkout=checkout, room_id=room_id)
+
+    return jsonify({
+        'isAvailable': is_available
+    })
 
 
 @app.route('/booking/')
@@ -186,14 +334,14 @@ def booking():
     current_datetime = datetime.now().strftime("%Y-%m-%dT%H:%M")
 
     username = session.get('username')
-    customer = dao.get_customer_by_account(username)
+    customer = dao.get_customer_by_account(Customer, username)
 
     list_customer_type = dao.get_customer_type()
 
-
     return render_template('booking.html', current_datetime=current_datetime, room=room, name=customer.name,
                            identification_card=customer.identification_card
-                           , customer_type=customer.customer_type.type, list_customer_type=list_customer_type)
+                           , customer_type=customer.customer_type.type, list_customer_type=list_customer_type
+                           , checkin=session.get('checkin'), checkout=session.get('checkout'))
 
 
 @app.route('/api/check_account', methods=['POST'])
@@ -204,6 +352,7 @@ def check_account():
 
     checkin = request.json.get('checkin')
     checkout = request.json.get('checkout')
+    print(checkin, checkout)
     room_id = request.json.get('roomId')
 
     room = dao.load_room(room_id=room_id)
@@ -214,7 +363,7 @@ def check_account():
     day = checkout_date - checkin_date
 
     length = len(list_name)
-    customer = dao.existence_check('identification_card', list_id[0])
+    customer = dao.existence_check(Customer, 'identification_card', list_id[0])
 
     session['guest'] = []
 
@@ -249,13 +398,25 @@ def check_account():
     })
 
 
+@app.route('/reservation', methods=['GET', 'POST'])
+def reservation():
+    room_id = request.args.get('room_id')
+    room = dao.load_room(room_id=room_id)
+
+    username = session.get('username')
+    customer = dao.get_customer_by_account(Customer, username)
+
+    length = len(session.get('guest'))
+
+    return render_template('reservation.html', room=room, customer=customer, length=length)
+
+
 @app.route('/payment', methods=['GET', 'POST'])
 def payment():
     # Lấy thông tin thanh toán từ người dùng
     amount = session['room_reservation_form']['deposit']  # Số tiền thanh toán (VNĐ)
-    amount *= 25000
     order_id = session['room_reservation_form']['order_id']
-
+    amount *= 25000
     vnp = dao.vnpay()
     # Xây dựng hàm cần thiết cho vnpay
     vnp.requestData['vnp_Version'] = '2.1.0'
@@ -265,7 +426,7 @@ def payment():
     vnp.requestData['vnp_CurrCode'] = 'VND'
     vnp.requestData['vnp_TxnRef'] = order_id
     vnp.requestData['vnp_OrderInfo'] = 'Thanhtoan'  # Nội dung thanh toán
-    vnp.requestData['vnp_OrderType'] = 'hotel'
+    vnp.requestData['vnp_OrderType'] = 'bill'
 
     vnp.requestData['vnp_Locale'] = 'vn'
 
@@ -287,7 +448,8 @@ def vnpay_return():
         room_reservation_form = session.get('room_reservation_form')
 
         username = session.get('username')
-        customer = dao.get_customer_by_account(username)
+        print(session.get('username'), username)
+        customer = dao.get_customer_by_account(Customer, username)
 
         room_reservation_form = RoomReservationForm(check_in_date=room_reservation_form['check_in_date'],
                                                     check_out_date=room_reservation_form['check_out_date'],
@@ -311,7 +473,7 @@ def vnpay_return():
         db.session.add(room_reservation_form)
         db.session.add_all(arr_guest)
         db.session.commit()
-
+        send_reservation_form()
         flash('Payment success', 'Payment result')
 
 
@@ -319,16 +481,6 @@ def vnpay_return():
         flash('Payment failed', 'Payment result')
 
     return redirect('/')
-
-
-@app.route('/nvxemphong')
-def nvxemphong():
-    return render_template('employees/nvxemphong.html')
-
-
-@app.route('/nvbook')
-def nvbook():
-    return render_template('employees/nvbook.html')
 
 
 @app.route('/nvcheckin')
@@ -344,7 +496,7 @@ def nvcheckout():
 @app.route('/account', methods=['GET'])
 def account():
     user_id = session.get('_user_id')
-    user = get_user_by_id(user_id)
+    user = dao.get_user_by_id(user_id)
     customer = Customer.query.filter_by(User_id=user_id).first()
     print(session)
     if '_user_id' not in session:
@@ -356,6 +508,7 @@ def account():
 @app.route('/account/edit', methods=['GET', 'POST'])
 def edit_account():
     user_id = session.get('_user_id')
+    # user = dao.get_user_by_id(user_id)
     print(session)
     user = db.session.query(User).options(joinedload(User.customer)).filter_by(id=user_id).first()
     if '_user_id' not in session:
@@ -371,17 +524,18 @@ def edit_account():
         customer_type_id = request.form.get('customer_type_id')
         gender = request.form.get('gender')
 
-        #Update dữ liệu User
+        # Update dữ liệu User
         current_user.username = username
         current_user.email = email
         current_user.phone = phone
+
         current_user.gender = gender
 
-        if customer: #này chưa lưu được vô CSDL hmmm
+        if customer:  # này chưa lưu được vô CSDL hmmm
             customer.identification_card = identification_card
             customer.customer_type_id = customer_type_id
         try:
-            #Update vô CSDL
+            # Update vô CSDL
             db.session.commit()
             flash("Thông tin tài khoản được cập nhật thành công!", "success")
         except Exception as e:
@@ -390,45 +544,6 @@ def edit_account():
         return redirect(url_for('account'))
 
     return render_template('edit_account.html', user=user, customer=customer)
-
-@app.route('/reservation', methods=['GET', 'POST'])
-def reservation():
-    error_message = {}
-    if request.method == 'POST':
-        name = request.form.getlist('name')
-        identification_card = request.form.getlist('identification_card')
-        customer_type = request.form.getlist('customer_type')
-
-        room_id = request.args.get('room_id')
-        room = dao.load_room(room_id=room_id)
-        date_today = date.today().strftime('%Y-%m-%d')
-
-        length = int(len(name))
-        for i in range(0, length):
-            if not (re.fullmatch(r'\d{12}', identification_card[i]) or re.fullmatch(r'\d{9}', identification_card[i])
-                    or re.fullmatch(r'[a-z][a-z0-9]{7}', identification_card[i], re.IGNORECASE)):
-                error_message['err_identification_card'] = 'Identification card is invalid.'
-                break
-        if not dao.existence_check('identification_card', identification_card[0]):
-            error_message['err_not_exist'] = 'A customer with an account must exist in the system.'
-
-        if error_message:
-            return render_template('booking.html', error_message=error_message, room=room, date_today=date_today,
-                                   name_check=name, identification_card_check=identification_card,
-                                   customer_type_check=customer_type,
-                                   length=length)
-
-    return render_template('reservation.html')
-
-
-@app.route('/admin/')
-def admin():
-    return MyView().render('admin/index.html')
-
-
-@app.route('/rental_history')
-def history():
-    return render_template('rental_history.html')
 
 
 if __name__ == '__main__':
