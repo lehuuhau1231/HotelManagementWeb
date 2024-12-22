@@ -134,9 +134,10 @@ class Bill(Base):
 class Comment(Base):
     content = Column(String(1000), nullable=False)
     created_date = Column(DateTime, default=datetime.now())
-    # user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
+
+
 
 
 reservation_detail = db.Table('reservation_detail',

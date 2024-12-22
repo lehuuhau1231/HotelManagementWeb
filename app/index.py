@@ -51,12 +51,13 @@ def login():
         if user:
             login_user(user)
             session['username'] = user.username
+            next = request.args.get('next')
             if user.role == Role.ADMIN:
                 return redirect('/admin')
             elif user.role == Role.RECEPTIONIST:
-                return redirect('/')
+                return redirect(next if next else '/')
             else:
-                return redirect('/')
+                return redirect(next if next else '/')
         else:
             err_message = 'username or password is incorrect'
 
@@ -305,7 +306,22 @@ def room_detail():
     room = dao.load_room(room_id=room_id)
     current_datetime = datetime.now().strftime('%Y-%m-%dT%H:%M')
 
-    return render_template('roomdetail.html', room=room, current_datetime=current_datetime)
+    return render_template('roomdetail.html', room=room, current_datetime=current_datetime, comments=dao.load_comment(room_id))
+
+
+@app.route('/api/room-detail/?room_id=<int:room_id>/comments', methods=['POST'])
+def add_comment(room_id):
+    content = request.json.get('content')
+    c = dao.add_comment(content, room_id)
+
+    return jsonify({
+        'content': c.content,
+        'created_date': c.created_date,
+        'customer': {
+            'avatar': c.customer.avatar,
+            'name': c.customer.name
+        }
+    })
 
 
 @app.route('/api/check_room_availability', methods=['POST'])
@@ -544,6 +560,11 @@ def edit_account():
         return redirect(url_for('account'))
 
     return render_template('edit_account.html', user=user, customer=customer)
+
+
+@app.route('/rental_history')
+def history():
+    return render_template('rental_history.html')
 
 
 if __name__ == '__main__':

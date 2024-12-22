@@ -1,5 +1,6 @@
 import hashlib
-from app.models import User, Room, RoomType, Customer, CustomerType, Guest, RoomReservationForm, RoomRentalForm
+from flask_login import current_user
+from app.models import User, Room, RoomType, Customer, CustomerType, Guest, RoomReservationForm, RoomRentalForm, Comment
 from app import db, app
 import cloudinary.uploader
 from sqlalchemy import or_, desc
@@ -106,6 +107,18 @@ def load_room(checkin=None, checkout=None, page=None, room_type=None, room_id=No
         rooms = rooms.slice(start, start + page_size)
 
     return rooms.all(), length
+
+
+def load_comment(room_id):
+    return Comment.query.filter(Comment.room_id.__eq__(room_id)).order_by(-Comment.id).all()
+
+
+def add_comment(content, room_id):
+    c = Comment(content=content, room_id=room_id, customer=current_user)
+    db.session.add(c)
+    db.session.commit()
+
+    return c
 
 
 def count_room():

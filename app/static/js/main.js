@@ -300,3 +300,33 @@ function validate(event, roomId) {
         }
     }
 }
+
+//==================================Comment===============================================//
+function addComment(roomId) {
+    fetch(`/api/room-detail/?room_id=${roomId}/comments`, {
+        method: "POST",
+        body: JSON.stringify({
+            "content": document.getElementById("comment").value
+        }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(res => res.json()).then(c => {
+        let html = `
+        <div class="col-12 mb-3">
+            <div class="d-flex align-items-start p-3 shadow-sm rounded-0" style="background: #D9D9D9;">
+                <img src="${ c.customer.avatar }" alt="User Image" class="img-fluid rounded-circle me-3"
+                     style="width: 5rem; height: 5rem;">
+                <div class="flex-grow-1">
+                    <h5 class="mb-1">${ c.customer.name }</h5>
+                    <p class="mb-1">${ c.content }</p>
+                    <small class="text-muted">${ c.created_date } (<span class="date">${ moment(c.created_date).fromNow() }</span>)</small>
+                </div>
+            </div>
+        </div>
+        `;
+
+        let t = document.getElementById("comments");
+        t.innerHTML = html + t.innerHTML;
+    })
+}
