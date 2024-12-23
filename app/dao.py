@@ -1,15 +1,15 @@
 import hashlib
+
 from app.models import User, Room, RoomType, Customer, CustomerType, Guest, RoomReservationForm, RoomRentalForm
 from app import db, app
 import cloudinary.uploader
-from sqlalchemy import or_, desc
+from sqlalchemy import or_, desc, exists
 import hmac
 from urllib.parse import urlencode
 import urllib.parse
 
 
-
-def check_room_availability(checkin, checkout, room_id):
+def check_room_availability(room_id, checkin, checkout):
     room_reservation = RoomReservationForm.query.filter(RoomReservationForm.room_id == room_id).all()
     room_rental = RoomRentalForm.query.filter(RoomRentalForm.room_id == room_id).all()
     is_available = True
@@ -45,7 +45,8 @@ def get_user_by_id(user_id):
 
 def get_customer_by_account(table, account):
     account = account.strip()
-    return table.query.filter(or_(table.username == account, table.email == account)).first()
+    return table.query.filter(
+        or_(table.username == account, table.email == account, table.identification_card == account)).first()
 
 
 def add_customer(name, username, password, email, phone, avatar, gender, identification, type):
@@ -141,8 +142,26 @@ def add_room_reservation_form(data, customer_id, user_id=None):
     db.session.add(room_reservation_form)
 
 
-def get_room_reservation_form():
-    return RoomReservationForm.query.order_by(desc(RoomReservationForm.id)).first()
+def get_form(table):
+    return table.query.order_by(desc(table.id)).first()
+
+
+def get_form_by_id(table, id):
+    return table.query.filter(table.id == id).first()
+
+
+def get_reservation_form_not_exist_rental(customer_id=None):
+    if customer_id:
+        return (db.session.query(RoomReservationForm)
+            .join(Customer, RoomReservationForm.customer_id == Customer.cus_id)
+            .filter(Customer.identification_card == customer_id).all())
+
+    return (db.session.query(RoomReservationForm) #lay ds phieu dat chua duoc tao thanh phieu thue
+            .filter(~exists().where(RoomReservationForm.id == RoomRentalForm.room_reservation_form_id)).all())
+
+
+def get_room_rental_form_all():
+    return RoomRentalForm.query.all()
 
 
 class vnpay:

@@ -42,7 +42,7 @@
             <div class="col-md-8 d-flex flex-column justify-content-between">
                 <h5 class="card-title">{{ room.name }}</h5>
                 <p class="card-text">Room Type: {{ room.room_type.name }}</p>
-                <p class="fw-bold">Price: {{ "{:,.0f}".format(room.room_type.price) }}$</p>
+                <p class="fw-bold">Price: {{ "{:,.0f}".format(room.room_type.price) }} VNĐ</p>
                 <button class="btn align-self-end bg-white text-dark rounded-0">
                     {% if current_user.is_authenticated %}
                         <a href="javascript:;" onclick="checkRoomAvailability({{ room.id }})"

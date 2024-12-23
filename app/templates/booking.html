@@ -25,8 +25,6 @@
         <div class="alert alert-danger error" style="display: none">
             <strong>Error!</strong> One of the three customers has duplicate ID cards.
         </div>
-        {#
-    <div class="row">#}
         {% if err_message and err_message.get('err_not_exist') %}
             <div class="alert alert-success">
                 <strong>Error!</strong> {{ err_message['err_not_exist'] }}
@@ -37,21 +35,32 @@
                 <strong>Info!</strong> A room can accommodate a maximum of 3 people.
             </div>
         </div>
-        <form>
-            <label>
-                <input type="radio" name="choice" value="Option 1">
-                Đặt
-            </label>
-            <br>
-            <label>
-                <input type="radio" name="choice" value="Option 2">
-                Thuê
-            </label>
-            <br>
-        </form>
         <form action="/reservation" method="post" class="container mt-5">
             <div class="popup"></div>
-
+            {% if current_user.role|string == 'Role.RECEPTIONIST' %}
+                <div class="body mb-2">
+                    <span>Choose Functionality.</span>
+                    <div class="tabs">
+                        <input
+                                checked=""
+                                value="Reservation"
+                                name="function"
+                                id="html"
+                                type="radio"
+                                class="input"
+                        />
+                        <label for="html" class="label">Reservation</label>
+                        <input
+                                value="Rent"
+                                name="function"
+                                id="css"
+                                type="radio"
+                                class="input"
+                        />
+                        <label for="css" class="label">Rent</label>
+                    </div>
+                </div>
+            {% endif %}
             <div class="row">
                 <!-- Room Details -->
                 <div class="col-md-4">
@@ -76,16 +85,6 @@
                                     {% if current_user.role|string == 'Role.CUSTOMER' %}
                                         <div class="d-flex align-items-center justify-content-between">
                                             <span style="font-style: italic">Auto fill your information</span>
-                                            {#                                            <label class="switch" style="transform: scale(0.8);">#}
-                                            {#                                                <input class="cb" type="checkbox"/>#}
-                                            {#                                                <span class="toggle"#}
-                                            {#                                                      onclick="autoFill('{{ name }}',#}
-                                            {#                                                              '{{ identification_card }}',#}
-                                            {#                                                              '{{ customer_type }}')">#}
-                                            {#                                            <span class="left">off</span>#}
-                                            {#                                            <span class="right">on</span>#}
-                                            {#                                            </span>#}
-                                            {#                                            </label>#}
                                             <label class="switch" style="transform: scale(0.8);">
                                                 <input class="cb" type="checkbox">
                                                 <span class="slider"

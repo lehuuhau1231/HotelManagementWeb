@@ -92,7 +92,16 @@ function checkRoomAvailability(roomId) {
         var myModal = new bootstrap.Modal(document.getElementById('myModal'));
         myModal.show();
         return;
+    } else {
+        if (checkin > checkout) {
+            popup.innerHTML = alert("Error!", "Check-in date must not be later than check-out date");
+            var myModal = new bootstrap.Modal(document.getElementById('myModal'));
+            myModal.show();
+            return;
+        }
     }
+
+
 
     fetch('/api/check_room_availability', {
         method: 'POST',
@@ -238,7 +247,6 @@ function validate(event, roomId) {
     for (let i = 0; i < inputId.length; i++) {
         let value = inputId[i].value.trim();
         if (value && arrayId.includes(value)) {
-            console.log('sai');
             error.style.display = "block";
             valid = false;
             break;
@@ -273,6 +281,13 @@ function validate(event, roomId) {
             let checkin = document.getElementById("checkin").value;
             let checkout = document.getElementById("checkout").value;
 
+            let act = document.querySelector("input[name='function']:checked");
+            if(act) {
+                act = act.value;
+            } else {
+                act = null
+            }
+
             fetch('/api/check_account', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -282,6 +297,7 @@ function validate(event, roomId) {
                     "checkin": checkin,
                     "checkout": checkout,
                     "roomId": roomId,
+                    "act": act
                 }),
                 headers: {
                     'Content-Type': 'application/json',
