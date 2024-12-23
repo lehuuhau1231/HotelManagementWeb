@@ -3,7 +3,7 @@ from datetime import date, datetime
 from warnings import catch_warnings
 from flask import render_template, request, redirect, flash, session, jsonify, url_for
 from sqlalchemy.orm import joinedload
-from app.models import Guest, RoomReservationForm, Customer, Role, User, RoomRentalForm
+from app.models import Guest, RoomReservationForm, Customer, Role, User, RoomRentalForm, BookingStatus
 from app import app, dao, login_manager, utils, VNPAY_CONFIG, db
 from flask_login import login_user, logout_user, login_required, current_user
 import smtplib
@@ -219,7 +219,7 @@ def send_form(user_id, form=None):
                     <td style="border: 1px solid #ddd; padding: 10px;">{guest.identification_card}</td>
                 </tr>
             """
-        price=""
+        price = ""
         if form == 'Reservation':
             price = f"""
                     <!-- Total Price -->
@@ -261,7 +261,7 @@ def send_form(user_id, form=None):
                         <body style="font-family: Arial, sans-serif;">
                             <!-- Header -->
                             {'<h2 style="text-align: center; color: #333;">Rental Details</h2>' if form and form == 'Rental'
-                            else '<h2 style="text-align: center; color: #333;">Reservation Details</h2>'}               
+            else '<h2 style="text-align: center; color: #333;">Reservation Details</h2>'}               
     
                             <!-- Reservation Information -->
                             <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
@@ -353,6 +353,7 @@ def send_form(user_id, form=None):
 
     else:
         return False
+
 
 @app.route('/room-detail/')
 def room_detail():
@@ -492,18 +493,18 @@ def handle_save_form(obj, customer, list_guest, user_id, form):
     form_common = None
     if form == 'Reservation':
         form_common = RoomReservationForm(check_in_date=obj['check_in_date'],
-                                                check_out_date=obj['check_out_date'],
-                                                deposit=obj['deposit'],
-                                                total_amount=obj['total_amount'],
-                                                room_id=obj['room_id'], customer_id=customer.cus_id,
-                                                user_id=user_id)
+                                          check_out_date=obj['check_out_date'],
+                                          deposit=obj['deposit'],
+                                          total_amount=obj['total_amount'],
+                                          room_id=obj['room_id'], customer_id=customer.cus_id,
+                                          user_id=user_id)
     elif form == 'Rental':
         form_common = RoomRentalForm(check_in_date=obj['check_in_date'],
-                              check_out_date=obj['check_out_date'],
-                              total_amount=obj['total_amount'],
-                              room_id=obj['room_id'],
-                              customer_id=customer.cus_id,
-                              user_id=user_id)
+                                     check_out_date=obj['check_out_date'],
+                                     total_amount=obj['total_amount'],
+                                     room_id=obj['room_id'],
+                                     customer_id=customer.cus_id,
+                                     user_id=user_id)
     arr_guest = []
     if list_guest and form_common:
         for guest in list_guest:
@@ -536,7 +537,7 @@ def reservation():
     room = dao.load_room(room_id=room_id)
     length = len(session.get('guest'))
 
-    if request.method.__eq__('POST'):#Nhan vien thue phong
+    if request.method.__eq__('POST'):  # Nhan vien thue phong
         room_rental_form = session.get('room_rental_form')
         customer = dao.get_customer_by_account(Customer, session['customer']['identification_card'])
         list_guest = session.get('guest')
@@ -597,7 +598,8 @@ def vnpay_return():
             customer = dao.get_customer_by_account(Customer, session['customer']['identification_card'])
             user_id = session.get('user_id')
 
-        handle_save_form(obj=room_reservation_form, customer=customer, list_guest=list_guest, user_id=user_id, form='Reservation')
+        handle_save_form(obj=room_reservation_form, customer=customer, list_guest=list_guest, user_id=user_id,
+                         form='Reservation')
         send_form(user_id=user_id, form='Reservation')
         flash('Payment success', 'Payment result')
         session.pop('act', None)
@@ -620,12 +622,16 @@ def nvbook():
     return render_template('employees/nvbook.html')
 
 
-@app.route('/nvcheckin', methods=['GET', 'POST'])
+@app.route('/nvcheckin')
 def checkin():
-    if request.method.__eq__('POST'):
-        reservation_id = request.form.get('reservation-id')
+    reservation_id = request.args.get('reservation-id')
+    if reservation_id:
         room_reservation_form = dao.get_form_by_id(RoomReservationForm, int(reservation_id))
-        if room_reservation_form.check_in_date >= datetime.now():
+        current_datetime = datetime.now()
+        reservation_date = room_reservation_form.check_in_date
+        if (reservation_date.date() >= current_datetime.date() and reservation_date.time() <= current_datetime.time()
+                and room_reservation_form.check_out_date < current_datetime.date()):
+            room_reservation_form.status = BookingStatus.IN_USE
             room_rental_form = RoomRentalForm(check_in_date=room_reservation_form.check_in_date,
                                               check_out_date=room_reservation_form.check_out_date,
                                               total_amount=room_reservation_form.total_amount - room_reservation_form.deposit,
@@ -644,7 +650,8 @@ def checkin():
 
     customer_id = request.args.get('customer_id')
     room_reservation_form = dao.get_reservation_form_not_exist_rental(customer_id=customer_id)
-    return render_template('employees/nvcheckin.html', room_reservation_form=room_reservation_form, customer_id=customer_id)
+    return render_template('employees/nvcheckin.html', room_reservation_form=room_reservation_form,
+                           customer_id=customer_id)
 
 
 @app.route('/nvcheckout', methods=['GET', 'POST'])
@@ -652,8 +659,8 @@ def checkout():
     if request.method.__eq__('POST'):
         rental_id = request.form.get('rental-id')
     room_rental_form = dao.get_room_rental_form_all()
-    return render_template('employees/checkout.html', room_rental_form=room_rental_form)
-
+    # return render_template('employees/nvcheckout.html', room_rental_form=room_rental_form)
+    return render_template('employees/nvbook.html')
 
 @app.route('/account', methods=['GET'])
 def account():

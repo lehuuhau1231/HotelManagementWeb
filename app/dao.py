@@ -1,6 +1,6 @@
 import hashlib
 
-from app.models import User, Room, RoomType, Customer, CustomerType, Guest, RoomReservationForm, RoomRentalForm
+from app.models import User, Room, RoomType, Customer, CustomerType, Guest, RoomReservationForm, RoomRentalForm, BookingStatus
 from app import db, app
 import cloudinary.uploader
 from sqlalchemy import or_, desc, exists
@@ -154,14 +154,14 @@ def get_reservation_form_not_exist_rental(customer_id=None):
     if customer_id:
         return (db.session.query(RoomReservationForm)
             .join(Customer, RoomReservationForm.customer_id == Customer.cus_id)
-            .filter(Customer.identification_card == customer_id).all())
+            .filter(Customer.identification_card == customer_id).order_by(desc(RoomReservationForm.check_in_date)).all())
 
     return (db.session.query(RoomReservationForm) #lay ds phieu dat chua duoc tao thanh phieu thue
-            .filter(~exists().where(RoomReservationForm.id == RoomRentalForm.room_reservation_form_id)).all())
+            .filter(RoomReservationForm.status.__eq__(BookingStatus.CONFIRMED)).order_by(desc(RoomReservationForm.check_in_date)).all())
 
 
 def get_room_rental_form_all():
-    return RoomRentalForm.query.all()
+    return RoomRentalForm.query.order_by(desc(RoomRentalForm.check_out_date)).all()
 
 
 class vnpay:

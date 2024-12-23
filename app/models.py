@@ -5,6 +5,7 @@ from cloudinary.utils import unique
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Enum, ForeignKey, text
 from sqlalchemy.orm import relationship
 from enum import Enum as RoleEnum
+from enum import Enum as BookingStatusEnum
 from app import db, app
 from flask_login import UserMixin
 
@@ -13,6 +14,13 @@ class Role(RoleEnum):
     ADMIN = 1,
     RECEPTIONIST = 2,
     CUSTOMER = 3
+
+
+class BookingStatus(BookingStatusEnum):
+    CONFIRMED = "Confirmed",
+    IN_USE = "In use",
+    COMPLETED = "Completed",
+    CANCELLED = "Cancelled"
 
 
 class Base(db.Model):
@@ -105,6 +113,7 @@ class RoomReservationForm(Base):
     check_out_date = Column(DateTime, nullable=False)
     deposit = Column(Float, nullable=False)
     total_amount = Column(Float, nullable=True)
+    status = Column(Enum(BookingStatus), nullable=False, default=BookingStatus.CONFIRMED)
     user_id = Column(Integer, ForeignKey(User.id), nullable=True)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
@@ -115,6 +124,7 @@ class RoomRentalForm(Base):
     check_in_date = Column(DateTime, nullable=False)
     check_out_date = Column(DateTime, nullable=False)
     total_amount = Column(Float, nullable=False)
+    status = Column(Enum(BookingStatus), nullable=False, default=BookingStatus.IN_USE)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
