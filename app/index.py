@@ -568,11 +568,9 @@ def reservation():
 
 @app.route('/payment', methods=['GET', 'POST'])
 def payment():
-    payment_type = None
-    rental_id = None
-    if request.method.__eq__('POST'):
-        payment_type = request.form.get('payment_type')
-        rental_id = request.form.get('rental_id')
+    payment_type = request.form.get('payment_type')
+    rental_id = request.form.get('rental_id')
+    if payment_type and rental_id:
         room_rental_form = dao.get_form_by_id(RoomRentalForm, int(rental_id))
         amount = room_rental_form.total_amount
         order_id = f'Rental-{room_rental_form.room_id}-{datetime.now().strftime("%Y%m%d%H%M%S")}'

@@ -36,7 +36,8 @@
                             <p class="card-text">Check-out: </p>
                             <p class="fw-bold">Price: {{ "{:,.0f}".format(item.room.room_type.price) }} VNĐ</p>
                             <button class="btn btn-review align-self-end bg-white text-dark rounded-0">
-                                <a href="#" class="review-link">Review</a>
+                                <a href="{{ '/view-review/' + str(item.room.id) if item.room.is_reviewed else 'javascript:;' }}"
+                                   class="review-link">Review</a>
                             </button>
                         </div>
                     </div>
@@ -65,7 +66,8 @@
         let activeForm = null; // Biến lưu form đang hiển thị
 
         reviewButtons.forEach(button => {
-            button.addEventListener("click", function () {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
                 // Ẩn form cũ nếu có
                 if (activeForm) {
                     activeForm.classList.remove("form-visible");
@@ -107,20 +109,22 @@
                     headers: {'Content-Type': 'application/json'}
                 }).then(res => res.json()).then(data => {
                     if (data.isSuccess) {
-                        var reviewButton = form.closest('.row').querySelector('.btn-review');
-                        console.log(reviewButton)
+                        form.classList.remove("form-visible");
+                        form.classList.add("form-hidden");
+                        var parentDiv = form.parentElement;
+                        var reviewButton = parentDiv.querySelector('.btn-review');
                         if (reviewButton) {
-                            var reviewLink = reviewButton.querySelector('.review-link');
+                            let reviewLink = reviewButton.querySelector('.review-link');
 
                             // Thay đổi nội dung của thẻ <a> thành "View Review"
                             reviewLink.textContent = 'View Review';
 
                             // Cập nhật href của thẻ <a>
-                            reviewLink.setAttribute('href', '/view-review/' + roomId); // Thay đổi href
+                            reviewLink.setAttribute('href', `/room-detail/?room_id${roomId}`); // Thay đổi href
 
                             // Cập nhật màu sắc của nút nếu cần
-                            reviewButton.classList.remove('bg-white', 'text-dark');
-                            reviewButton.classList.add('bg-primary', 'text-white');
+                            {#reviewButton.classList.remove('bg-white', 'text-dark');#}
+                            {#reviewButton.classList.add('bg-primary', 'text-white');#}
                         }
                     }
                 })
