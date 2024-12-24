@@ -1,17 +1,27 @@
-from app import app, db
+from app import app, db, dao
 import utils
 from flask import redirect, request
-from flask_admin import Admin, BaseView, expose
+from flask_admin import Admin, BaseView, expose, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from app.models import Room, RoomType, RoomRegulation, CustomerRegulation, User, Role
 from flask_login import current_user, logout_user
+import hashlib
 
-admin = Admin(app=app, name='HotelManagementWeb', template_mode='bootstrap4')
+class MyAdminIndexView(AdminIndexView):
+    @expose('/')
+    def index(self):
+        return self.render('admin/index.html', stats_room=utils.count_room_by_roomType())
+
+
+admin = Admin(app=app, name='HotelManagementWeb', template_mode='bootstrap4', index_view=MyAdminIndexView())
 
 
 class AuthenticatedView(ModelView):
     def is_accessible(self):
-        return current_user.is_authenticated and current_user.role.__eq__(Role.ADMIN)
+        if not current_user.is_authenticated or current_user.role != Role.ADMIN:
+            logout_user()
+            return False
+        return True
 
 
 class UserView(AuthenticatedView):
@@ -19,28 +29,72 @@ class UserView(AuthenticatedView):
     column_searchable_list = ['username']
     column_filters = ['role']
     column_editable_list = ['phone']
+    form_excluded_columns = [
+        'room',
+        'room_regulation',
+        'customer_regulation',
+        'room_reservation_form',
+        'bill',
+        'room_rental_from',
+        'customer'
+    ]
+
+    def on_model_change(self, form, model, is_created):
+        if not form.password.data:
+            raise ValueError("Mật khẩu không được để trống")
+        else:
+            model.password = hashlib.md5(form.password.data.encode('utf-8')).hexdigest()
+        super(UserView, self).on_model_change(form, model, is_created)
 
 
 class RoomView(AuthenticatedView):
-    column_list = ['id', 'name', 'image', 'room_type_id', 'status']
-    column_searchable_list = ['name', 'status']
+    column_list = ['id', 'name', 'image', 'room_type_id']
+    column_searchable_list = ['name']
     column_filters = ['id', 'name']
     column_editable_list = ['name', 'image']
+    form_excluded_columns = [
+        'room_reservation_from',
+        'room_rental_from',
+        'comment',
+        'user' #lỗi bắt buộc nhập
+    ]
+    can_export = True
 
 
 class RoomTypeView(AuthenticatedView):
     column_list = ['id', 'name', 'price', 'room']
+    column_labels = {
+        'id': 'ID',
+        'name': 'Name',
+        'price': 'Price',
+        'room': 'RoomDisplay'  # Đặt nhãn cho cột mới
+    }
     column_filters = ['name']
     column_editable_list = ['name']
     can_export = True
+    form_excluded_columns = [
+        'room',
+        'room_regulation'
+    ]
+    def _format_rooms(view, context, model, name):
+        return ', '.join([room.name for room in model.room])
+    column_formatters = {
+        'room': _format_rooms
+    }
 
 
 class RoomRegulationView(AuthenticatedView):
     column_list = ['id', 'number_of_guests', 'room_type_id', 'rate']
+    form_excluded_columns = [
+        'user' #lỗi bắt buộc nhập
+    ]
 
 
 class CustomerRegulationView(AuthenticatedView):
     column_list = ['id', 'Coefficient', 'customer_type_id']
+    form_excluded_columns = [
+        'user' #lỗi bắt buộc nhập
+    ]
 
 
 class AuthenticatedBaseView(BaseView):

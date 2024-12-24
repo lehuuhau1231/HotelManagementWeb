@@ -209,37 +209,64 @@ if __name__ == '__main__':
                 'name': 'Deluxe Room(River view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/singleViewRiver1_xldkkp.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_single.id
+                'room_type_id': room_type_single.id,
+
             },
             {
                 'name': 'Executive Room(City view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewRiver_rtsum2.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_twin.id
+                'room_type_id': room_type_twin.id,
+
             },
             {
                 'name': 'President Room(River view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewRiver_rtsum2.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_double.id
+                'room_type_id': room_type_double.id,
+
             },
             {
                 'name': 'Deluxe Room(City view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/singleViewCity1_yrewg4.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_single.id
+                'room_type_id': room_type_single.id,
+
             },
             {
                 'name': 'Executive Room(River view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/twinViewRiver1_kn87ab.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_twin.id
+                'room_type_id': room_type_twin.id,
+
             },
             {
                 'name': 'President Room(City view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewCity1_wavkyb.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_double.id
+                'room_type_id': room_type_double.id,
+
+            },
+            {
+                'name': 'President Room(City view)',
+                'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewCity1_wavkyb.jpg',
+                'user_id': admin.id,
+                'room_type_id': room_type_double.id,
+
+            },
+            {
+                'name': 'President Room(River view)',
+                'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewCity1_wavkyb.jpg',
+                'user_id': admin.id,
+                'room_type_id': room_type_double.id,
+
+            },
+            {
+                'name': 'Executive Room(City view)',
+                'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewRiver_rtsum2.jpg',
+                'user_id': admin.id,
+                'room_type_id': room_type_twin.id,
+
             }
         ]
 

@@ -1,6 +1,7 @@
 import hashlib
 
-from app.models import User, Room, RoomType, Customer, CustomerType, Guest, RoomReservationForm, RoomRentalForm, BookingStatus
+from app.models import User, Room, RoomType, Customer, CustomerType, Guest, RoomReservationForm, RoomRentalForm, \
+    BookingStatus
 from app import db, app
 import cloudinary.uploader
 from sqlalchemy import or_, desc, exists
@@ -142,7 +143,9 @@ def add_room_reservation_form(data, customer_id, user_id=None):
     db.session.add(room_reservation_form)
 
 
-def get_form(table):
+def get_form(table, form_id=None):
+    if form_id:
+        return table.query.get(form_id)
     return table.query.order_by(desc(table.id)).first()
 
 
@@ -153,15 +156,28 @@ def get_form_by_id(table, id):
 def get_reservation_form_not_exist_rental(customer_id=None):
     if customer_id:
         return (db.session.query(RoomReservationForm)
-            .join(Customer, RoomReservationForm.customer_id == Customer.cus_id)
-            .filter(Customer.identification_card == customer_id).order_by(desc(RoomReservationForm.check_in_date)).all())
+                .join(Customer, RoomReservationForm.customer_id == Customer.cus_id)
+                .filter(Customer.identification_card == customer_id)
+                .order_by(desc(RoomReservationForm.check_in_date)).all())
 
-    return (db.session.query(RoomReservationForm) #lay ds phieu dat chua duoc tao thanh phieu thue
-            .filter(RoomReservationForm.status.__eq__(BookingStatus.CONFIRMED)).order_by(desc(RoomReservationForm.check_in_date)).all())
+    return (db.session.query(RoomReservationForm)  # lay ds phieu dat chua duoc tao thanh phieu thue
+            .filter(RoomReservationForm.status.__eq__(BookingStatus.CONFIRMED)).order_by(
+        desc(RoomReservationForm.check_in_date)).all())
 
 
-def get_room_rental_form_all():
-    return RoomRentalForm.query.order_by(desc(RoomRentalForm.check_out_date)).all()
+def get_room_rental_form_all(customer_id=None):
+    if customer_id:
+        return (db.session.query(RoomRentalForm)
+                .join(Customer, RoomRentalForm.customer_id == Customer.cus_id)
+                .filter(Customer.identification_card == customer_id)
+                .order_by(desc(RoomRentalForm.check_out_date)).all())
+
+    return (RoomRentalForm.query.filter(RoomRentalForm.status.__eq__(BookingStatus.IN_USE))
+            .order_by(desc(RoomRentalForm.check_out_date)).all())
+
+
+def get_rented_room(customer_id):
+    return RoomRentalForm.query.filter(RoomRentalForm.status.__eq__(BookingStatus.COMPLETED), RoomRentalForm.customer_id == customer_id).all()
 
 
 class vnpay:

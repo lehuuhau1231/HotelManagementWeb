@@ -125,4 +125,9 @@ def stats(kw=None, year=None, month=None):
         return stats_query.all()
 
 
+def count_room_by_roomType():
+    with app.app_context():
+        return db.session.query(RoomType.id, RoomType.name, func.count(Room.id)) \
+            .join(Room, Room.room_type_id.__eq__(RoomType.id),isouter=True).group_by(RoomType.id).all()
+
 print(stats())
