@@ -6,7 +6,6 @@ from app.models import *
 
 def total_price(price, day, length, list_customer_type, room_id):
     total = price * day
-    print(total)
     if length > 1:  # Nếu tồn tại 3 khách
         room_regulation = db.session.query(Room.id, RoomRegulation.rate). \
             join(RoomType, Room.room_type_id == RoomType.id). \

@@ -55,6 +55,12 @@ class RoomView(AuthenticatedView):
 
 class RoomTypeView(AuthenticatedView):
     column_list = ['id', 'name', 'price', 'room']
+    column_labels = {
+        'id': 'ID',
+        'name': 'Name',
+        'price': 'Price',
+        'room': 'RoomDisplay'  # Đặt nhãn cho cột mới
+    }
     column_filters = ['name']
     column_editable_list = ['name']
     can_export = True
@@ -62,6 +68,11 @@ class RoomTypeView(AuthenticatedView):
         'room',
         'room_regulation'
     ]
+    def _format_rooms(view, context, model, name):
+        return ', '.join([room.name for room in model.room])
+    column_formatters = {
+        'room': _format_rooms
+    }
 
 
 class RoomRegulationView(AuthenticatedView):

@@ -23,7 +23,7 @@ class Base(db.Model):
 class User(Base, UserMixin):
     name = Column(String(50), nullable=False)
     username = Column(String(50), nullable=False, unique=True)
-    password = Column(String(255), nullable=False)
+    password = Column(String(50), nullable=False)
     email = Column(String(50), nullable=False, unique=True)
     phone = Column(String(10), nullable=False)
     avatar = Column(String(100),
@@ -108,17 +108,16 @@ class RoomReservationForm(Base):
     user_id = Column(Integer, ForeignKey(User.id), nullable=True)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
-    room_rental_form = relationship('RoomRentalForm', backref='room_reservation_form', uselist=False)
+    room_rental_form = relationship('RoomRentalForm', backref='room_reservation_fom', uselist=False)
 
 
 class RoomRentalForm(Base):
     check_in_date = Column(DateTime, nullable=False)
     check_out_date = Column(DateTime, nullable=False)
-    deposit = Column(Float, nullable=False)
+    total_amount = Column(Float, nullable=False)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
-    # bill_id = Column(Integer, ForeignKey(Bill.id), nullable=False, unique=True)
     room_reservation_form_id = Column(Integer, ForeignKey(RoomReservationForm.id), unique=True, nullable=True)
     bill = relationship('Bill', backref='room_rental_form', lazy=True, uselist=False)
 
@@ -134,10 +133,9 @@ class Bill(Base):
 class Comment(Base):
     content = Column(String(1000), nullable=False)
     created_date = Column(DateTime, default=datetime.now())
+    # user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
-
-
 
 
 reservation_detail = db.Table('reservation_detail',
@@ -185,9 +183,9 @@ if __name__ == '__main__':
 
         #         ==============================Thêm loại phòng======================================
 
-        room_type_single = RoomType(name='Single Bedroom', price=100)
-        room_type_twin = RoomType(name='Twin Bedroom', price=300)
-        room_type_double = RoomType(name='Double Bedroom', price=500)
+        room_type_single = RoomType(name='Single Bedroom', price=1000000)
+        room_type_twin = RoomType(name='Twin Bedroom', price=3000000)
+        room_type_double = RoomType(name='Double Bedroom', price=5000000)
 
         db.session.add_all([room_type_single, room_type_twin, room_type_double])
         db.session.commit()
@@ -296,13 +294,13 @@ if __name__ == '__main__':
 
         rental_data = [
             {'customer_id': 2, 'user_id': 3, 'room_id': 4, 'check_in_date': datetime(2024, 1, 9, 17, 1),
-             'check_out_date': datetime(2024, 1, 19, 17, 1), 'deposit': 900000, 'room_reservation_form_id': 1},
+             'check_out_date': datetime(2024, 1, 19, 17, 1), 'total_amount': 1000000},
             {'customer_id': 1, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2024, 3, 25, 17, 11),
-             'check_out_date': datetime(2024, 3, 29, 17, 11), 'deposit': 1500000},
+             'check_out_date': datetime(2024, 3, 29, 17, 11), 'total_amount': 3000000},
             {'customer_id': 2, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2023, 12, 11, 17, 12),
-             'check_out_date': datetime(2023, 12, 21, 17, 12), 'deposit': 1500000, 'room_reservation_form_id': 3},
+             'check_out_date': datetime(2023, 12, 21, 17, 12), 'total_amount': 5000000},
             {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2024, 1, 9, 17, 1),
-             'check_out_date': datetime(2024, 2, 9, 17, 1), 'deposit': 1200000}]
+             'check_out_date': datetime(2024, 2, 9, 17, 1), 'total_amount': 3000000}]
         for r in rental_data:
             rental = RoomRentalForm(**r)
             db.session.add(rental)

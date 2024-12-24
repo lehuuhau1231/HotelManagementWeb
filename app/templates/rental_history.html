@@ -1,7 +1,7 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
-<section class="hero position-relative text-center text-white" style="height: 300px; overflow: hidden;">
+<section class="hero position-relative text-center text-white" style="height: 500px; overflow: hidden;">
     <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Hotel Image" class="img-fluid">
     <div class="position-absolute top-0 start-0 w-100 h-95 bg-dark opacity-50"></div>
     <div class="position-absolute top-50 start-50 translate-middle w-100">
@@ -19,19 +19,19 @@
 </section>
 
 <div class="popup"></div>
-<div class="container mt-4 mb-4">
+<div class="container mt-4">
     <!-- Room Details -->
     <div class="row p-3 shadow-sm text-white" style="background: #687994;">
         <div class="col-md-4">
-            <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Room Image"
+            <img src="{{ room.image }}" alt="Room Image"
                  class="img-fluid rounded">
         </div>
         <div class="col-md-8 d-flex flex-column justify-content-between">
-            <h5 class="card-title">Test</h5>
-            <p class="card-text">Room Type: Test</p>
+            <h5 class="card-title">{{ room.name }}</h5>
+            <p class="card-text">Room Type: {{ room.room_type.name }}</p>
             <p class="card-text">Check-in: {{ date_today }}</p>
             <p class="card-text">Check-out: {{ date_today }}</p>
-            <p class="fw-bold">Price: Test</p>
+            <p class="fw-bold">Price: {{ "{:,.0f}".format(room.room_type.price) }}$</p>
             <button class="btn align-self-end bg-white text-dark rounded-0">
                 {% if current_user.is_authenticated %}
                 <a href="/room-detail" class="text-dark">Review</a>
@@ -41,66 +41,19 @@
             </button>
         </div>
     </div>
-</div>
-<div class="container mt-4 mb-4">
+<div class="container mt-4">
     <!-- Room Details -->
     <div class="row p-3 shadow-sm text-white" style="background: #687994;">
         <div class="col-md-4">
-            <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Room Image"
+            <img src="{{ room.image }}" alt="Room Image"
                  class="img-fluid rounded">
         </div>
         <div class="col-md-8 d-flex flex-column justify-content-between">
-            <h5 class="card-title">Test</h5>
-            <p class="card-text">Room Type: Test</p>
+            <h5 class="card-title">{{ room.name }}</h5>
+            <p class="card-text">Room Type: {{ room.room_type.name }}</p>
             <p class="card-text">Check-in: {{ date_today }}</p>
             <p class="card-text">Check-out: {{ date_today }}</p>
-            <p class="fw-bold">Price: Test</p>
-            <button class="btn align-self-end bg-white text-dark rounded-0">
-                {% if current_user.is_authenticated %}
-                <a href="/room-detail" class="text-dark">Review</a>
-                {% else %}
-                <a href="javascript:;" onclick="loginRequired()" class="text-dark">Review</a>
-                {% endif %}
-            </button>
-        </div>
-    </div>
-</div>
-<div class="container mt-4 mb-4">
-    <!-- Room Details -->
-    <div class="row p-3 shadow-sm text-white" style="background: #687994;">
-        <div class="col-md-4">
-            <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Room Image"
-                 class="img-fluid rounded">
-        </div>
-        <div class="col-md-8 d-flex flex-column justify-content-between">
-            <h5 class="card-title">Test</h5>
-            <p class="card-text">Room Type: Test</p>
-            <p class="card-text">Check-in: {{ date_today }}</p>
-            <p class="card-text">Check-out: {{ date_today }}</p>
-            <p class="fw-bold">Price: Test</p>
-            <button class="btn align-self-end bg-white text-dark rounded-0">
-                {% if current_user.is_authenticated %}
-                <a href="/room-detail" class="text-dark">Review</a>
-                {% else %}
-                <a href="javascript:;" onclick="loginRequired()" class="text-dark">Review</a>
-                {% endif %}
-            </button>
-        </div>
-    </div>
-</div>
-<div class="container mt-4 mb-4">
-    <!-- Room Details -->
-    <div class="row p-3 shadow-sm text-white" style="background: #687994;">
-        <div class="col-md-4">
-            <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Room Image"
-                 class="img-fluid rounded">
-        </div>
-        <div class="col-md-8 d-flex flex-column justify-content-between">
-            <h5 class="card-title">Test</h5>
-            <p class="card-text">Room Type: Test</p>
-            <p class="card-text">Check-in: {{ date_today }}</p>
-            <p class="card-text">Check-out: {{ date_today }}</p>
-            <p class="fw-bold">Price: Test</p>
+            <p class="fw-bold">Price: {{ "{:,.0f}".format(room.room_type.price) }}$</p>
             <button class="btn align-self-end bg-white text-dark rounded-0">
                 {% if current_user.is_authenticated %}
                 <a href="/room-detail" class="text-dark">Review</a>
