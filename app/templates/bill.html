@@ -28,25 +28,61 @@
                 <table class="table table-bordered">
                     <thead class="table-light">
                     <tr>
-                        <th scope="col">Name:</th>
-                        <th scope="col">Room:</th>
+                        <th scope="col">Name: {{ room_rental_form.customer.name }}</th>
+                        <th scope="col">Room: {{ room_rental_form.room.name }}</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
-                        <td>Check-in time:</td>
-                        <td>Check-out time:</td>
+                        <td>Check-in time: {{ room_rental_form.check_in_date }}</td>
+                        <td>Check-out time: {{ room_rental_form.check_out_date }}</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-            <form class="row align-items-center mt-4">
+
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">Order</th>
+                        <th scope="col">Customer</th>
+                        <th scope="col">Customer-type</th>
+                        <th scope="col">Identification</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>{{ room_rental_form.customer.name }}</td>
+                        <td>{{ room_rental_form.customer.customer_type.type }}</td>
+                        <td>{{ room_rental_form.customer.identification_card }}</td>
+                    </tr>
+
+                    {% for guest in room_rental_form.guest %}
+                        <tr>
+                            <td>{{ loop.index + 1 }}</td>
+                            <td>{{ guest.name }}</td>
+                            <td>{{ guest.customer_type.type }}</td>
+                            <td>{{ guest.identification_card }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <form method="post" action="/payment" class="row align-items-center mt-4">
                 <div class="col-md-9">
-                    <h5><strong>Total Price:</strong> xxxxxxxxxxxxxxxxxxxxx</h5>
+                    {% if room_reservation_from %}
+                        <h5><strong>Total Price:</strong>{{ "{:,.0f}".format(room_reservation_form.total_amount) }}</h5>
+                        <h5><strong>Deposit paid:</strong>{{ "{:,.0f}".format(room_reservation_form.deposit) }}</h5>
+                    {% endif %}
+                    <h5 class="text-danger"><strong>Amount to be paid: </strong>{{ "{:,.0f}".format(room_rental_form.total_amount) }}</h5>
                 </div>
+                <input type="hidden" name="payment_type" value="rental">
+                <input type="hidden" name="rental_id" value="{{ room_rental_form.id }}">
                 <div class="col-md-3 text-end mb-2">
-                    <button class="btn-pay fs-4 px-5" style="background: #B8B4B4;">EXPORT
-                    </button>
+                    <button class="btn-pay fs-4 px-5" style="background: #B8B4B4;">PAY</button>
                 </div>
             </form>
         </div>

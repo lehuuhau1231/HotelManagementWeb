@@ -5,6 +5,7 @@ from cloudinary.utils import unique
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Enum, ForeignKey, text
 from sqlalchemy.orm import relationship
 from enum import Enum as RoleEnum
+from enum import Enum as BookingStatusEnum
 from app import db, app
 from flask_login import UserMixin
 
@@ -13,6 +14,13 @@ class Role(RoleEnum):
     ADMIN = 1,
     RECEPTIONIST = 2,
     CUSTOMER = 3
+
+
+class BookingStatus(BookingStatusEnum):
+    CONFIRMED = "Confirmed",
+    IN_USE = "In use",
+    COMPLETED = "Completed",
+    CANCELLED = "Cancelled"
 
 
 class Base(db.Model):
@@ -79,7 +87,7 @@ class RoomType(Base):
 class Room(Base):
     name = Column(String(50), nullable=False)
     image = Column(String(100))
-    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    user_id = Column(Integer, ForeignKey(User.id), nullable=True)
     room_type_id = Column(Integer, ForeignKey(RoomType.id), nullable=False)
     room_reservation_from = relationship('RoomReservationForm', backref='room', lazy=True)
     room_rental_from = relationship('RoomRentalForm', backref='room', lazy=True)
@@ -88,7 +96,7 @@ class Room(Base):
 
 class RoomRegulation(Base):
     number_of_guests = Column(Integer, nullable=False, default=3)
-    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    user_id = Column(Integer, ForeignKey(User.id), nullable=True)
     room_type_id = Column(Integer, ForeignKey(RoomType.id), unique=True, nullable=False)
     rate = Column(Float, nullable=False, default=0.25)
     room_type = relationship('RoomType', back_populates='room_regulation')
@@ -105,6 +113,7 @@ class RoomReservationForm(Base):
     check_out_date = Column(DateTime, nullable=False)
     deposit = Column(Float, nullable=False)
     total_amount = Column(Float, nullable=True)
+    status = Column(Enum(BookingStatus), nullable=False, default=BookingStatus.CONFIRMED)
     user_id = Column(Integer, ForeignKey(User.id), nullable=True)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
@@ -115,6 +124,7 @@ class RoomRentalForm(Base):
     check_in_date = Column(DateTime, nullable=False)
     check_out_date = Column(DateTime, nullable=False)
     total_amount = Column(Float, nullable=False)
+    status = Column(Enum(BookingStatus), nullable=False, default=BookingStatus.IN_USE)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
@@ -199,37 +209,64 @@ if __name__ == '__main__':
                 'name': 'Deluxe Room(River view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/singleViewRiver1_xldkkp.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_single.id
+                'room_type_id': room_type_single.id,
+
             },
             {
                 'name': 'Executive Room(City view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewRiver_rtsum2.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_twin.id
+                'room_type_id': room_type_twin.id,
+
             },
             {
                 'name': 'President Room(River view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewRiver_rtsum2.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_double.id
+                'room_type_id': room_type_double.id,
+
             },
             {
                 'name': 'Deluxe Room(City view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/singleViewCity1_yrewg4.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_single.id
+                'room_type_id': room_type_single.id,
+
             },
             {
                 'name': 'Executive Room(River view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/twinViewRiver1_kn87ab.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_twin.id
+                'room_type_id': room_type_twin.id,
+
             },
             {
                 'name': 'President Room(City view)',
                 'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewCity1_wavkyb.jpg',
                 'user_id': admin.id,
-                'room_type_id': room_type_double.id
+                'room_type_id': room_type_double.id,
+
+            },
+            {
+                'name': 'President Room(City view)',
+                'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewCity1_wavkyb.jpg',
+                'user_id': admin.id,
+                'room_type_id': room_type_double.id,
+
+            },
+            {
+                'name': 'President Room(River view)',
+                'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewCity1_wavkyb.jpg',
+                'user_id': admin.id,
+                'room_type_id': room_type_double.id,
+
+            },
+            {
+                'name': 'Executive Room(City view)',
+                'image': 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1732957297/doubleViewRiver_rtsum2.jpg',
+                'user_id': admin.id,
+                'room_type_id': room_type_twin.id,
+
             }
         ]
 

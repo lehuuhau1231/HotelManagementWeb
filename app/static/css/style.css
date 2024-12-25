@@ -2,6 +2,14 @@ a {
     text-decoration: none;
 }
 
+.form-hidden{
+    display: none !important;
+}
+
+.form-visible {
+    display: flex !important;
+}
+
 .error-message {
     text-align: left;
     font-style: italic;

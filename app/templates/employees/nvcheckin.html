@@ -57,11 +57,10 @@
 
         <!-- Reservation Cards -->
         <div class="row g-4">
-            <!-- Card 1 -->
             {% if room_reservation_form is iterable %}
                 {% for item in room_reservation_form %}
-                    <form method="post" class="col-md-6">
-                        <div class="card-custom px-3" style="background: #D9D9D9;">
+                    <form method="get" class="col-md-6">
+                        <div class="card-custom px-3 pt-2" style="background: #D9D9D9; flex: 1;">
                             <span class="deposit-tag"> Total amount: {{ "{:,.0f}".format(item.total_amount) }} VNĐ</span>
                             <br>
                             <span class="deposit-tag text-danger"> Deposit: {{ "{:,.0f}".format(item.deposit) }} VNĐ</span>

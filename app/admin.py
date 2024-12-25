@@ -1,13 +1,19 @@
 from app import app, db, dao
 import utils
 from flask import redirect, request
-from flask_admin import Admin, BaseView, expose
+from flask_admin import Admin, BaseView, expose, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from app.models import Room, RoomType, RoomRegulation, CustomerRegulation, User, Role
 from flask_login import current_user, logout_user
 import hashlib
 
-admin = Admin(app=app, name='HotelManagementWeb', template_mode='bootstrap4')
+class MyAdminIndexView(AdminIndexView):
+    @expose('/')
+    def index(self):
+        return self.render('admin/index.html', stats_room=utils.count_room_by_roomType())
+
+
+admin = Admin(app=app, name='HotelManagementWeb', template_mode='bootstrap4', index_view=MyAdminIndexView())
 
 
 class AuthenticatedView(ModelView):
@@ -16,6 +22,7 @@ class AuthenticatedView(ModelView):
             logout_user()
             return False
         return True
+
 
 class UserView(AuthenticatedView):
     column_list = ['role', 'username', 'email', 'phone', 'gender']
@@ -49,8 +56,9 @@ class RoomView(AuthenticatedView):
         'room_reservation_from',
         'room_rental_from',
         'comment',
-        'user' #lỗi bắt buộc nhập
+        'user'
     ]
+    can_export = True
 
 
 class RoomTypeView(AuthenticatedView):
@@ -71,22 +79,20 @@ class RoomTypeView(AuthenticatedView):
     def _format_rooms(view, context, model, name):
         return ', '.join([room.name for room in model.room])
     column_formatters = {
-        'room': _format_rooms
+        'room': _format_rooms,
+        'price': lambda v, c, m, p: f"{m.price:,.0f} VNĐ"
     }
 
 
 class RoomRegulationView(AuthenticatedView):
     column_list = ['id', 'number_of_guests', 'room_type_id', 'rate']
     form_excluded_columns = [
-        'user' #lỗi bắt buộc nhập
+        'user'
     ]
 
 
 class CustomerRegulationView(AuthenticatedView):
-    column_list = ['id', 'Coefficient', 'customer_type_id']
-    form_excluded_columns = [
-        'user' #lỗi bắt buộc nhập
-    ]
+    column_list = ['id', 'Coefficient', 'customer_type_id', 'User']
 
 
 class AuthenticatedBaseView(BaseView):
