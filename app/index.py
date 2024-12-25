@@ -371,9 +371,10 @@ def send_form(user_id=None, form=None, form_id=None):
 def room_detail():
     room_id = request.args.get('room_id')
     room = dao.load_room(room_id=room_id)
+    comments = dao.load_comment(room_id=room_id)
     current_datetime = datetime.now().strftime('%Y-%m-%dT%H:%M')
 
-    return render_template('roomdetail.html', room=room, current_datetime=current_datetime)
+    return render_template('roomdetail.html', room=room, current_datetime=current_datetime, comments=comments)
 
 
 @app.route('/api/check_room_availability', methods=['POST'])

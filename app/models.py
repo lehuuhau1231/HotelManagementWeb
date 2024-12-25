@@ -87,7 +87,7 @@ class RoomType(Base):
 class Room(Base):
     name = Column(String(50), nullable=False)
     image = Column(String(100))
-    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    user_id = Column(Integer, ForeignKey(User.id), nullable=True)
     room_type_id = Column(Integer, ForeignKey(RoomType.id), nullable=False)
     room_reservation_from = relationship('RoomReservationForm', backref='room', lazy=True)
     room_rental_from = relationship('RoomRentalForm', backref='room', lazy=True)
@@ -96,7 +96,7 @@ class Room(Base):
 
 class RoomRegulation(Base):
     number_of_guests = Column(Integer, nullable=False, default=3)
-    user_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    user_id = Column(Integer, ForeignKey(User.id), nullable=True)
     room_type_id = Column(Integer, ForeignKey(RoomType.id), unique=True, nullable=False)
     rate = Column(Float, nullable=False, default=0.25)
     room_type = relationship('RoomType', back_populates='room_regulation')

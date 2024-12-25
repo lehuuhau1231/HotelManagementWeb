@@ -122,7 +122,11 @@ function checkRoomAvailability(roomId) {
     })
 }
 
-let count = 1;
+window.onload = function () {
+    let dates = document.getElementsByClassName("date");
+    for (let d of dates)
+        d.innerText = moment(d.innerText).fromNow();
+}
 
 function addCustomer() {
     if (count <= 2) {
@@ -315,4 +319,10 @@ function validate(event, roomId) {
             })
         }
     }
+}
+
+window.onload = function() {
+        let dates = document.getElementsByClassName("date");
+        for (let d of dates)
+            d.innerText = moment(d.innerText).fromNow();
 }

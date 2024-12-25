@@ -57,53 +57,22 @@
 
         <!-- Divider -->
         <hr class="my-4">
-
-        <!-- Comment Input Section -->
-        <div class="row mb-4">
-            <div class="col-12 d-flex">
-                <input type="text" class="form-control me-2 rounded-0" placeholder="Input your comment"
-                       style="background: #D9D9D9;">
-                <button type="button" class="btn text-dark rounded-0" style="background: #D9D9D9;">Send</button>
-            </div>
-        </div>
-
-        <!-- Comment List -->
-        <div class="row">
+        <div class="row" id="comments">
             <!-- Comment Item -->
-            <div class="col-12 mb-3">
-                <div class="d-flex align-items-start p-3 shadow-sm rounded-0" style="background: #D9D9D9;">
-                    <img src="https://via.placeholder.com/50x50" alt="User Image" class="rounded-circle me-3">
-                    <div class="flex-grow-1">
-                        <h6 class="mb-1">Username 1</h6>
-                        <p class="mb-1">Comment details</p>
-                        <small class="text-muted">Comment date dd/mm/yy</small>
+            {% for c in comments %}
+                <div class="col-12 mb-3">
+                    <div class="d-flex align-items-start p-3 shadow-sm rounded-0" style="background: #D9D9D9;">
+                        <img src="{{ c.customer.avatar }}" alt="User Image" class="img-fluid rounded-circle me-3"
+                             style="width: 5rem; height: 5rem;">
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">{{ c.customer.name }}</h5>
+                            <p class="mb-1">{{ c.content }}</p>
+                            <small class="text-muted">{{ c.created_date }} (<span
+                                    class="date">{{ c.created_date }}</span>)</small>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Comment Item -->
-            <div class="col-12 mb-3">
-                <div class="d-flex align-items-start p-3 shadow-sm rounded-0" style="background: #D9D9D9;">
-                    <img src="https://via.placeholder.com/50x50" alt="User Image" class="rounded-circle me-3">
-                    <div class="flex-grow-1">
-                        <h6 class="mb-1">Username 2</h6>
-                        <p class="mb-1">Comment details</p>
-                        <small class="text-muted">Comment date dd/mm/yy</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Comment Item -->
-            <div class="col-12 mb-3">
-                <div class="d-flex align-items-start p-3 shadow-sm rounded-0" style="background: #D9D9D9;">
-                    <img src="https://via.placeholder.com/50x50" alt="User Image" class="rounded-circle me-3">
-                    <div class="flex-grow-1">
-                        <h6 class="mb-1">Username 3</h6>
-                        <p class="mb-1">Comment details</p>
-                        <small class="text-muted">Comment date dd/mm/yy</small>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 

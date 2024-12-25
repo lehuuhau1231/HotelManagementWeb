@@ -1,7 +1,7 @@
 import hashlib
 
 from app.models import User, Room, RoomType, Customer, CustomerType, Guest, RoomReservationForm, RoomRentalForm, \
-    BookingStatus
+    BookingStatus, Comment
 from app import db, app
 import cloudinary.uploader
 from sqlalchemy import or_, desc, exists
@@ -178,6 +178,10 @@ def get_room_rental_form_all(customer_id=None):
 
 def get_rented_room(customer_id):
     return RoomRentalForm.query.filter(RoomRentalForm.status.__eq__(BookingStatus.COMPLETED), RoomRentalForm.customer_id == customer_id).all()
+
+
+def load_comment(room_id):
+    return Comment.query.filter(Comment.room_id == room_id).all()
 
 
 class vnpay:

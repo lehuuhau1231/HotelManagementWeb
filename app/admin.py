@@ -79,7 +79,8 @@ class RoomTypeView(AuthenticatedView):
     def _format_rooms(view, context, model, name):
         return ', '.join([room.name for room in model.room])
     column_formatters = {
-        'room': _format_rooms
+        'room': _format_rooms,
+        'price': lambda v, c, m, p: f"{m.price:,.0f} VND"
     }
 
 
