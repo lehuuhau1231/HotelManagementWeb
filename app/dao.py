@@ -1,12 +1,14 @@
 import hashlib
-from app.models import User, Room, RoomType, Customer, CustomerType, Guest, RoomReservationForm, RoomRentalForm, Comment, BookingStatus
+
+from app.models import User, Room, RoomType, Customer, CustomerType, Guest, RoomReservationForm, RoomRentalForm, \
+    BookingStatus, Comment
 from app import db, app
 import cloudinary.uploader
 from sqlalchemy import or_, desc, exists
 import hmac
 from urllib.parse import urlencode
 import urllib.parse
-from flask_login import current_user
+from datetime import datetime, timedelta
 
 
 def check_room_availability(room_id, checkin, checkout):
@@ -176,7 +178,42 @@ def get_room_rental_form_all(customer_id=None):
 
 
 def get_rented_room(customer_id):
-    return RoomRentalForm.query.filter(RoomRentalForm.status.__eq__(BookingStatus.COMPLETED), RoomRentalForm.customer_id == customer_id).all()
+    return RoomRentalForm.query.filter(RoomRentalForm.status.__eq__(BookingStatus.COMPLETED),
+                                       RoomRentalForm.customer_id == customer_id).all()
+
+
+def load_comment(room_id):
+    return Comment.query.filter(Comment.room_id == room_id).order_by(-Comment.id).all()
+
+
+def get_comments(room_id, page=1):
+    page_size = app.config["COMMENT_SIZE"]
+    total_comments = Comment.query.filter(Comment.room_id == room_id).count()
+    start = (page - 1) * page_size
+    comments = Comment.query.filter(Comment.room_id == room_id) \
+        .order_by(Comment.id.desc()) \
+        .offset(start) \
+        .limit(page_size) \
+        .all()
+
+    return {
+        "comments": comments,
+        "total": total_comments,
+        "page": page,
+        "page_size": page_size
+    }
+
+
+def cancel_form():
+    days_ago = datetime.now() - timedelta(days=28)
+    with app.app_context():
+        room_reservation_form = RoomReservationForm.query.filter(RoomReservationForm.check_in_date < days_ago,
+                                                                 RoomReservationForm.status == BookingStatus.CONFIRMED).all()
+        print('chay')
+        for item in room_reservation_form:
+            item.status = BookingStatus.CANCELLED
+
+        db.session.commit()
 
 
 class vnpay:
@@ -236,15 +273,3 @@ class vnpay:
         byteKey = key.encode('utf-8')
         byteData = data.encode('utf-8')
         return hmac.new(byteKey, byteData, hashlib.sha512).hexdigest()
-
-
-def load_comment(room_id):
-    return Comment.query.filter(Comment.room_id.__eq__(room_id)).order_by(-Comment.id).all()
-
-
-def add_comment(content, room_id):
-    c = Comment(content=content, room_id=room_id, customer=current_user)
-    db.session.add(c)
-    db.session.commit()
-
-    return c

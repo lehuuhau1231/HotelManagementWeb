@@ -15,11 +15,6 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav">
-                    {% if current_user.role|string == 'Role.CUSTOMER' %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/rental_history">Rental History</a>
-                    </li>
-                    {% endif %}
                     {% if current_user.role|string == 'Role.ADMIN' %}
                     <li class="nav-item">
                         <button type="button" class="btn active">
@@ -34,13 +29,18 @@
                         </button>
                     </li>
                     {% endif %}
-                    <li class="nav-item">
+                    {% if current_user.role|string == 'Role.CUSTOMER' %}
+                     <li class="nav-item">
+                        <a class="nav-link" href="/rental_history">Rental history</a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.is_authenticated %}
+                     <li class="nav-item">
                         <a class="nav-link" href="/account">Account</a>
                     </li>
-                    {% if current_user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="#">
-                            <img src="{{ current_user.avatar }}" alt="avatar" width="50" style="border-radius: 10px">
+                            <img src="{{ current_user.avatar }}" alt="avatar" width="30" style="border-radius: 10px">
                             Hello {{ current_user.name }}
                         </a>
                     </li>

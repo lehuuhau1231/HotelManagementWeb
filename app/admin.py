@@ -3,9 +3,11 @@ import utils
 from flask import redirect, request
 from flask_admin import Admin, BaseView, expose, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
-from app.models import Room, RoomType, RoomRegulation, CustomerRegulation, User, Role
+from app.models import Room, RoomType, RoomRegulation, CustomerRegulation, User, Role,RoomRentalForm,Bill,RoomReservationForm
 from flask_login import current_user, logout_user
 import hashlib
+from sqlalchemy.sql import exists, and_
+
 
 class MyAdminIndexView(AdminIndexView):
     @expose('/')
@@ -48,7 +50,7 @@ class UserView(AuthenticatedView):
 
 
 class RoomView(AuthenticatedView):
-    column_list = ['id', 'name', 'image', 'room_type_id']
+    column_list = ['id', 'name', 'image', 'room_type_id','Room_status','Room_price']
     column_searchable_list = ['name']
     column_filters = ['id', 'name']
     column_editable_list = ['name', 'image']
@@ -56,9 +58,36 @@ class RoomView(AuthenticatedView):
         'room_reservation_from',
         'room_rental_from',
         'comment',
-        'user'
+        'user' #lỗi bắt buộc nhập
     ]
     can_export = True
+    def get_room_status(self, room):
+        session = self.session
+        # Kiểm tra trạng thái phiếu Thuê
+        in_use = session.query(exists().where(
+            and_(RoomRentalForm.room_id == room.id, RoomRentalForm.status == 'IN_USE')
+        )).scalar()
+        # Kiểm tra trạng thái phiếu đặt
+        confirmed = session.query(exists().where(
+            and_(RoomReservationForm.room_id == room.id, RoomReservationForm.status == 'CONFIRMED')
+        )).scalar()
+        # Xác định trạng thái
+        if in_use or confirmed:
+            return "Rented"
+        else:
+            return "Available"
+
+    def trang_thai_phong_formatter(view, context, model, name):
+        return view.get_room_status(model)
+
+    # Định nghĩa formatter cho cột room_price
+    column_formatters = {
+        'Room_status': trang_thai_phong_formatter,
+        'Room_price': lambda view, context, model, name: (
+            f"{model.room_type.price:,.0f} VND" if model.room_type else 'N/A'
+        )
+    }
+
 
 
 class RoomTypeView(AuthenticatedView):
@@ -80,19 +109,23 @@ class RoomTypeView(AuthenticatedView):
         return ', '.join([room.name for room in model.room])
     column_formatters = {
         'room': _format_rooms,
-        'price': lambda v, c, m, p: f"{m.price:,.0f} VNĐ"
+        'price': lambda v, c, m, p: f"{m.price:,.0f} VND"
     }
 
 
 class RoomRegulationView(AuthenticatedView):
     column_list = ['id', 'number_of_guests', 'room_type_id', 'rate']
+    column_editable_list = ['rate','number_of_guests']
     form_excluded_columns = [
-        'user'
+        'user' #lỗi bắt buộc nhập
     ]
 
 
 class CustomerRegulationView(AuthenticatedView):
-    column_list = ['id', 'Coefficient', 'customer_type_id', 'User']
+    column_list = ['id', 'Coefficient', 'customer_type_id']
+    form_excluded_columns = [
+        'user' #lỗi bắt buộc nhập
+    ]
 
 
 class AuthenticatedBaseView(BaseView):

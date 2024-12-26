@@ -125,6 +125,7 @@ class RoomRentalForm(Base):
     check_out_date = Column(DateTime, nullable=False)
     total_amount = Column(Float, nullable=False)
     status = Column(Enum(BookingStatus), nullable=False, default=BookingStatus.IN_USE)
+    is_review = Column(Boolean, nullable=True)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
@@ -134,7 +135,7 @@ class RoomRentalForm(Base):
 
 class Bill(Base):
     total_price = Column(Float, nullable=False)
-    created_date = Column(DateTime, nullable=False)
+    created_date = Column(DateTime, nullable=False, default=datetime.now())
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     room_rental_form_id = Column(Integer, ForeignKey(RoomRentalForm.id), nullable=False, unique=True)
     # room_rental_from = relationship('RoomRentalForm', backref='bill', lazy=True)
@@ -172,8 +173,8 @@ if __name__ == '__main__':
                      password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
                      email='lehuuhau1231@gmail.com',
                      phone='0378151028', gender=1, role=Role.ADMIN)
-        user2 = User(name='Lâm', username='duclam', password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
-                     email='lamn9049@gmail.com', phone='0375808832', gender=1, role=Role.RECEPTIONIST)
+        user2 = User(name='Lâm', username='huuhau', password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
+                     email='lehuuhau@gmail.com', phone='0378151028', gender=1, role=Role.RECEPTIONIST)
         cus = Customer(name='Trần Quỳnh Hương', username='trqhuong',
                        password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
                        email='quynhhuongtran314@gmail.com',
@@ -289,16 +290,14 @@ if __name__ == '__main__':
 
         #         ==============================Thêm phiếu đặt======================================
         reservation_data = [
-            {'customer_id': 2, 'user_id': 3, 'room_id': 4, 'check_in_date': datetime(2024, 1, 9, 17, 1),
-             'check_out_date': datetime(2024, 1, 19, 17, 1), 'deposit': 900000, 'total_amount': 1000000},
-            {'customer_id': 1, 'user_id': None, 'room_id': 2, 'check_in_date': datetime(2024, 3, 25, 17, 11),
-             'check_out_date': datetime(2024, 3, 29, 17, 11), 'deposit': 1500000, 'total_amount': 1000000},
-            {'customer_id': 2, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2023, 12, 11, 17, 12),
-             'check_out_date': datetime(2023, 12, 21, 17, 12), 'deposit': 1500000, 'total_amount': 1000000},
-            {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2024, 1, 9, 17, 1),
-             'check_out_date': datetime(2024, 2, 9, 17, 1), 'deposit': 1200000, 'total_amount': 1000000},
-            {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2024, 12, 14, 17, 1),
-             'check_out_date': datetime(2024, 12, 16, 17, 1), 'deposit': 1200000, 'total_amount': 1000000}
+            {'customer_id': 2, 'user_id': 3, 'room_id': 4, 'check_in_date': datetime(2024, 12, 24, 17, 1),
+             'check_out_date': datetime(2024, 12, 25, 17, 1), 'deposit': 300000, 'total_amount': 1000000},
+            {'customer_id': 1, 'user_id': None, 'room_id': 2, 'check_in_date': datetime(2024, 12, 25, 17, 11),
+             'check_out_date': datetime(2024, 12, 29, 17, 11), 'deposit': 900000, 'total_amount': 3000000},
+            {'customer_id': 2, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2023, 12, 27, 17, 12),
+             'check_out_date': datetime(2023, 12, 30, 17, 12), 'deposit': 900000, 'total_amount': 3000000},
+            {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2024, 12, 28, 17, 1),
+             'check_out_date': datetime(2024, 12, 30, 17, 1), 'deposit': 300000, 'total_amount': 1000000}
         ]
 
         for data in reservation_data:
