@@ -128,6 +128,8 @@ window.onload = function () {
         d.innerText = moment(d.innerText).fromNow();
 }
 
+let count = 1
+
 function addCustomer() {
     if (count <= 2) {
         count += 1

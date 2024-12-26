@@ -8,6 +8,7 @@ from sqlalchemy import or_, desc, exists
 import hmac
 from urllib.parse import urlencode
 import urllib.parse
+from datetime import datetime, timedelta
 
 
 def check_room_availability(room_id, checkin, checkout):
@@ -177,11 +178,24 @@ def get_room_rental_form_all(customer_id=None):
 
 
 def get_rented_room(customer_id):
-    return RoomRentalForm.query.filter(RoomRentalForm.status.__eq__(BookingStatus.COMPLETED), RoomRentalForm.customer_id == customer_id).all()
+    return RoomRentalForm.query.filter(RoomRentalForm.status.__eq__(BookingStatus.COMPLETED),
+                                       RoomRentalForm.customer_id == customer_id).all()
 
 
 def load_comment(room_id):
-    return Comment.query.filter(Comment.room_id == room_id).all()
+    return Comment.query.filter(Comment.room_id == room_id).order_by(desc(Comment.created_date)).all()
+
+
+def cancel_form():
+    days_ago = datetime.now() - timedelta(days=28)
+    with app.app_context():
+        room_reservation_form = RoomReservationForm.query.filter(RoomReservationForm.check_in_date < days_ago,
+                                                                 RoomReservationForm.status == BookingStatus.CONFIRMED).all()
+        print('chay')
+        for item in room_reservation_form:
+            item.status = BookingStatus.CANCELLED
+
+        db.session.commit()
 
 
 class vnpay:

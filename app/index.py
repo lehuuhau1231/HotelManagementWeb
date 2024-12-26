@@ -4,7 +4,7 @@ from warnings import catch_warnings
 from flask import render_template, request, redirect, flash, session, jsonify, url_for
 from sqlalchemy import table
 from sqlalchemy.orm import joinedload
-from app.models import Guest, RoomReservationForm, Customer, Role, User, RoomRentalForm, BookingStatus, Comment
+from app.models import Guest, RoomReservationForm, Customer, Role, User, RoomRentalForm, BookingStatus, Comment, Bill
 from app import app, dao, login_manager, utils, VNPAY_CONFIG, db
 from flask_login import login_user, logout_user, login_required, current_user
 import smtplib
@@ -12,6 +12,8 @@ import random
 import math
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from apscheduler.schedulers.background import BackgroundScheduler
+from app.dao import cancel_form
 
 from app.utils import total_price
 
@@ -615,6 +617,8 @@ def vnpay_return():
             if room_reservation_form_id:
                 room_reservation_form = dao.get_form_by_id(RoomReservationForm, int(room_reservation_form_id))
                 room_reservation_form.status = BookingStatus.COMPLETED
+            bill = Bill(total_price=room_rental_form.total_amount, user_id=current_user.id, room_rental_form_id=room_rental_form.id)
+            db.session.add(bill)
             db.session.commit()
             send_form(form='Bill', form_id=rental_id)
             flash('Payment success', 'Payment result')
@@ -712,10 +716,13 @@ def rental_history():
 def comment():
     content = request.json.get('content')
     room_id = request.json.get('roomId')
+    rental_id = request.json.get('rentalId')
 
     username = session.get('username')
     customer = dao.get_customer_by_account(Customer, username)
+    room_rental_form = dao.get_form_by_id(RoomRentalForm, int(rental_id))
 
+    room_rental_form.is_review = True
     cmt = Comment(content=content, room_id=room_id, customer_id=customer.cus_id)
     db.session.add(cmt)
     db.session.commit()
@@ -776,6 +783,13 @@ def edit_account():
     return render_template('edit_account.html', user=user, customer=customer)
 
 
+def start_scheduler():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=cancel_form, trigger="interval", seconds=1)  # Chạy mỗi ngày
+    scheduler.start()
+
+
 if __name__ == '__main__':
     from app import admin
+    start_scheduler()
     app.run(debug=True)

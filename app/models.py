@@ -125,6 +125,7 @@ class RoomRentalForm(Base):
     check_out_date = Column(DateTime, nullable=False)
     total_amount = Column(Float, nullable=False)
     status = Column(Enum(BookingStatus), nullable=False, default=BookingStatus.IN_USE)
+    is_review = Column(Boolean, nullable=True)
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     customer_id = Column(Integer, ForeignKey(Customer.cus_id), nullable=False)
     room_id = Column(Integer, ForeignKey(Room.id), nullable=False)
@@ -134,7 +135,7 @@ class RoomRentalForm(Base):
 
 class Bill(Base):
     total_price = Column(Float, nullable=False)
-    created_date = Column(DateTime, nullable=False)
+    created_date = Column(DateTime, nullable=False, default=datetime.now())
     user_id = Column(Integer, ForeignKey(User.id), nullable=False)
     room_rental_form_id = Column(Integer, ForeignKey(RoomRentalForm.id), nullable=False, unique=True)
     # room_rental_from = relationship('RoomRentalForm', backref='bill', lazy=True)

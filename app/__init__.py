@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import quote
 from flask_login import LoginManager
 import cloudinary
-
 app = Flask(__name__)
 
 app.secret_key = 'HJLIYYWO(&^((^NCHDKVIS'
@@ -13,6 +12,7 @@ app.config["PAGE_SIZE"] = 3
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
+
 
 cloudinary.config(
     cloud_name="dndsrbf9s",
