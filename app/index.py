@@ -774,7 +774,7 @@ def account():
 @app.route('/account/edit', methods=['GET', 'POST'])
 def edit_account():
     user_id = session.get('_user_id')
-
+    print(user_id)
     customer = Customer.query.filter_by(User_id=user_id).first()
 
     if request.method == 'POST':
@@ -783,8 +783,20 @@ def edit_account():
         phone = request.form.get('phone')
         gender = request.form.get('gender')
 
+
+
+        email_pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        if not re.match(email_pattern, email):
+            flash("Invalid Email! Please input email format.", "Wrong Update!")
+            return render_template('edit_account.html', customer=customer)
+
+        phone_pattern = r'^\d{10}$'
+        if not re.match(phone_pattern, phone):
+            flash("Invalid Number! Please input 10 numbers.", "Wrong Update!")
+            return render_template('edit_account.html', customer=customer)
+
         # Update dữ liệu User
-        current_user.username = username
+        # current_user.username = username
         current_user.email = email
         current_user.phone = phone
         current_user.gender = gender
@@ -792,10 +804,10 @@ def edit_account():
         try:
             # Update vô CSDL
             db.session.commit()
-            flash("Thông tin tài khoản được cập nhật thành công!", "Cập Nhật Tài Khoản")
+            flash("Account is updated completely!", "Update Account")
         except Exception as e:
             db.session.rollback()
-            flash(f"Có lỗi xảy ra: {str(e)}", "Lỗi xảy ra")
+            flash(f"Error: {str(e)}", "Error")
         return redirect(url_for('account'))
 
     return render_template('edit_account.html', customer=customer)

@@ -12,7 +12,7 @@
                     <form method="POST" action="{{ url_for('edit_account') }}">
                         <div class="mb-3">
                             <label for="userName" class="form-label">Username:</label>
-                            <input type="text" class="form-control" id="userName" name="username" value="{{ current_user.username }}">
+                            <input type="text" class="form-control" id="userName" name="username" value="{{ current_user.username }}" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="userCCCD" class="form-label">Identification number (CCCD):</label>

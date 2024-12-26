@@ -33,7 +33,7 @@ class User(Base, UserMixin):
     username = Column(String(50), nullable=False, unique=True)
     password = Column(String(50), nullable=False)
     email = Column(String(50), nullable=False, unique=True)
-    phone = Column(String(10), nullable=False)
+    phone = Column(String(10), nullable=False, unique=True)
     avatar = Column(String(100),
                     default="https://res.cloudinary.com/dxxwcby8l/image/upload/v1647056401/ipmsmnxjydrhpo21xrd8.jpg")
     gender = Column(String(6), nullable=False)
@@ -172,21 +172,21 @@ if __name__ == '__main__':
         user1 = User(name='Lê Hữu Hậu', username='lehuuhau',
                      password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
                      email='lehuuhau1231@gmail.com',
-                     phone='0378151028', gender=1, role=Role.ADMIN)
+                     phone='0378151028', gender='male', role=Role.ADMIN)
         user2 = User(name='Lâm', username='huuhau', password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
-                     email='lehuuhau@gmail.com', phone='0378151028', gender=1, role=Role.RECEPTIONIST)
+                     email='lehuuhau@gmail.com', phone='0378151028', gender='female', role=Role.RECEPTIONIST)
         cus = Customer(name='Trần Quỳnh Hương', username='trqhuong',
                        password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
                        email='quynhhuongtran314@gmail.com',
-                       phone='0941166034', gender=2, identification_card='085388761234', customer_type_id=2)
+                       phone='0941166034', gender='male', identification_card='085388761234', customer_type_id=2)
         cus1 = Customer(name='Quỳnh Hương', username='huong',
                         password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
-                        email='quynhhuongtran@gmail.com', phone='0941166036', gender=2,
+                        email='quynhhuongtran@gmail.com', phone='0941166036', gender='male',
                         identification_card='085387417586', customer_type_id=1)
 
         cus2 = Customer(name='Lê Hữu Hậu', username='hau',
                         password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
-                        email='lehuuhau004@gmail.com', phone='0941166006', gender=2,
+                        email='lehuuhau004@gmail.com', phone='0941166006', gender='male',
                         identification_card='085387417581', customer_type_id=1)
 
         db.session.add_all([user1, cus, user2, cus1, cus2])
