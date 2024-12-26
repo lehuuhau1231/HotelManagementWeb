@@ -791,5 +791,5 @@ def start_scheduler():
 
 if __name__ == '__main__':
     from app import admin
-    start_scheduler()
+    # start_scheduler()
     app.run(debug=True)

@@ -1,7 +1,7 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
-    <section class="hero position-relative text-center text-white" style="height: 500px; overflow: hidden;">
+    <section class="hero position-relative text-center text-white" style="height: 300px; overflow: hidden;">
         <img src="{{ url_for('static', filename='images/roombase.jpg') }}" alt="Hotel Image" class="img-fluid">
         <div class="position-absolute top-0 start-0 w-100 h-95 bg-dark opacity-50"></div>
         <div class="position-absolute top-50 start-50 translate-middle w-100">
@@ -32,8 +32,8 @@
                         <div class="col-md-8 d-flex flex-column justify-content-between">
                             <h5 class="card-title">{{ item.room.name }}</h5>
                             <p class="card-text">Room Type: {{ item.room.room_type.name }}</p>
-                            <p class="card-text">Check-in: {{ item.check_in_date }}</p>
-                            <p class="card-text">Check-out: {{ item.check_out_date }}</p>
+                            <p class="card-text">Check-in:<span class="fw-bold"> {{ item.check_in_date }}</span></p>
+                            <p class="card-text">Check-out:<span class="fw-bold"> {{ item.check_out_date }}</span></p>
                             <p class="fw-bold">Price: {{ "{:,.0f}".format(item.room.room_type.price) }} VNĐ</p>
                             {% if item.is_review %}
                                 <button class="btn align-self-end bg-white text-dark rounded-0">
@@ -47,10 +47,19 @@
                         </div>
                     </div>
                     <form class="mt-2 d-flex form-hidden">
-                        <input type="hidden" name="room-id" value="{{ item.room.id }}">
-                        <input type="hidden" name="rental-id" value="{{ item.id }}">
-                        <input type="text" class="form-control me-2" placeholder="Enter your review here">
-                        <button class="btn btn-primary rounded-1 send" disabled>Send</button>
+                        <!--                        <input type="hidden" value="{{ item.room.id }}">-->
+                        <!--                        <input type="text" class="form-control me-2" placeholder="Enter your review here">-->
+                        <!--                        <button class="btn btn-primary rounded-1 send" disabled>Send</button>-->
+                        <div class="col-12 d-flex">
+                            <input type="hidden" name="room-id" value="{{ item.room.id }}">
+                            <input type="hidden" name="rental-id" value="{{ item.id }}">
+                            <input type="text" class="form-control me-2 rounded-0"
+                                   placeholder="Input your comment"
+                                   style="background: #D9D9D9;">
+                            <button type="button" class="btn text-dark rounded-0 send"
+                                    style="background: #D9D9D9;" disabled>Send
+                            </button>
+                        </div>
                     </form>
                 </div>
             {% endfor %}
@@ -83,8 +92,8 @@
         });
 
         document.querySelectorAll('.form-hidden').forEach(function (form) {
-            let button = form.querySelector('.send');
             let input = form.querySelector('input[type="text"]');
+            let button = form.querySelector('.send');
 
             input.addEventListener('input', function () {
                 // Kiểm tra nếu ô input có giá trị
@@ -120,7 +129,8 @@
                             reviewLink.textContent = 'View Review';
 
                             // Cập nhật href của thẻ <a>
-                            reviewLink.setAttribute('href', `/room-detail/?room_id${roomId}`);
+                            reviewLink.setAttribute('href', `/room-detail/?room_id=${roomId}`); // Thay đổi href
+
                         }
                     }
                 })
