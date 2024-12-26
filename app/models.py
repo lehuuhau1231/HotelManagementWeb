@@ -172,7 +172,7 @@ if __name__ == '__main__':
         user1 = User(name='Lê Hữu Hậu', username='lehuuhau',
                      password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
                      email='lehuuhau1231@gmail.com',
-                     phone='0378151028', gender='male', role=Role.ADMIN)
+                     phone='0378151138', gender='male', role=Role.ADMIN)
         user2 = User(name='Lâm', username='huuhau', password=str(hashlib.md5('123'.encode('utf-8')).hexdigest()),
                      email='lehuuhau@gmail.com', phone='0378151028', gender='female', role=Role.RECEPTIONIST)
         cus = Customer(name='Trần Quỳnh Hương', username='trqhuong',
