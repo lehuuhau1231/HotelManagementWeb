@@ -13,7 +13,6 @@ click==8.1.7
 cloudinary==1.38.0
 colorama==0.4.6
 cryptography==43.0.3
-cs50==9.2.5
 distlib==0.3.9
 Django==5.1.1
 filelock==3.16.1
