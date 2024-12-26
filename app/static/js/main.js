@@ -46,7 +46,7 @@ function validateDataDate(event, checkin, checkout) {
     }
 }
 
-function loginRequired() {
+function loginRequired(roomId) {
     let popup = document.querySelector(".popup")
     popup.innerHTML = `
         <!-- The Modal -->
@@ -68,7 +68,7 @@ function loginRequired() {
               <!-- Modal footer -->
               <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                    <a href="/login" class="text-white">Login</a>
+                    <a href="/login?room-id=${roomId}" class="text-white">Login</a>
                 </button>
                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
               </div>

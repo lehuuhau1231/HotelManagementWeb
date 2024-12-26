@@ -290,16 +290,14 @@ if __name__ == '__main__':
 
         #         ==============================Thêm phiếu đặt======================================
         reservation_data = [
-            {'customer_id': 2, 'user_id': 3, 'room_id': 4, 'check_in_date': datetime(2024, 1, 9, 17, 1),
-             'check_out_date': datetime(2024, 1, 19, 17, 1), 'deposit': 900000, 'total_amount': 1000000},
-            {'customer_id': 1, 'user_id': None, 'room_id': 2, 'check_in_date': datetime(2024, 3, 25, 17, 11),
-             'check_out_date': datetime(2024, 3, 29, 17, 11), 'deposit': 1500000, 'total_amount': 1000000},
-            {'customer_id': 2, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2023, 12, 11, 17, 12),
-             'check_out_date': datetime(2023, 12, 21, 17, 12), 'deposit': 1500000, 'total_amount': 1000000},
-            {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2024, 1, 9, 17, 1),
-             'check_out_date': datetime(2024, 2, 9, 17, 1), 'deposit': 1200000, 'total_amount': 1000000},
-            {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2024, 12, 14, 17, 1),
-             'check_out_date': datetime(2024, 12, 16, 17, 1), 'deposit': 1200000, 'total_amount': 1000000}
+            {'customer_id': 2, 'user_id': 3, 'room_id': 4, 'check_in_date': datetime(2024, 12, 24, 17, 1),
+             'check_out_date': datetime(2024, 12, 25, 17, 1), 'deposit': 300000, 'total_amount': 1000000},
+            {'customer_id': 1, 'user_id': None, 'room_id': 2, 'check_in_date': datetime(2024, 12, 25, 17, 11),
+             'check_out_date': datetime(2024, 12, 29, 17, 11), 'deposit': 900000, 'total_amount': 3000000},
+            {'customer_id': 2, 'user_id': 3, 'room_id': 2, 'check_in_date': datetime(2023, 12, 27, 17, 12),
+             'check_out_date': datetime(2023, 12, 30, 17, 12), 'deposit': 900000, 'total_amount': 3000000},
+            {'customer_id': 1, 'user_id': 3, 'room_id': 1, 'check_in_date': datetime(2024, 12, 28, 17, 1),
+             'check_out_date': datetime(2024, 12, 30, 17, 1), 'deposit': 300000, 'total_amount': 1000000}
         ]
 
         for data in reservation_data:

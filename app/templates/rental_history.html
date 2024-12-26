@@ -104,8 +104,7 @@
                 }
             });
 
-            form.querySelector('.send').addEventListener('click', function (event) {
-                event.preventDefault()
+            form.querySelector('.send').addEventListener('click', function () {
                 let roomId = form.querySelector('input[name="room-id"]')
                 let rentalId = form.querySelector('input[name="rental-id"]')
                 fetch('/api/comment', {
@@ -131,6 +130,7 @@
                             // Cập nhật href của thẻ <a>
                             reviewLink.setAttribute('href', `/room-detail/?room_id=${roomId}`); // Thay đổi href
 
+                            location.reload()
                         }
                     }
                 })

@@ -15,8 +15,6 @@ from email.mime.multipart import MIMEMultipart
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.dao import cancel_form
 
-from app.utils import total_price
-
 
 @app.route('/')
 def index():
@@ -63,7 +61,11 @@ def login():
             elif user.role == Role.RECEPTIONIST:
                 return redirect('/nvcheckin')
             else:
-                return redirect('/')
+                room_id = request.args.get('room-id')
+                if room_id:
+                    return redirect(f'/room-detail?room_id={room_id}')
+                else:
+                    return redirect('/')
         else:
             err_message = 'username or password is incorrect'
 
@@ -622,7 +624,7 @@ def vnpay_return():
             db.session.commit()
             send_form(form='Bill', form_id=rental_id)
             flash('Payment success', 'Payment result')
-            return redirect('/nvcheckin')
+            return redirect('/nvcheckout')
         else:
             list_guest = session.get('guest')
             room_reservation_form = session.get('room_reservation_form')
@@ -712,24 +714,50 @@ def rental_history():
     return render_template('rental_history.html', list_rented_rooms=list_rented_rooms)
 
 
-@app.route('/api/comment', methods=['POST'])
+@app.route('/api/comment', methods=['GET', 'POST'])
 def comment():
-    content = request.json.get('content')
-    room_id = request.json.get('roomId')
-    rental_id = request.json.get('rentalId')
+    if request.method == 'POST':
+        content = request.json.get('content')
+        room_id = request.json.get('roomId')
+        rental_id = request.json.get('rentalId')
 
-    username = session.get('username')
-    customer = dao.get_customer_by_account(Customer, username)
-    room_rental_form = dao.get_form_by_id(RoomRentalForm, int(rental_id))
+        username = session.get('username')
+        customer = dao.get_customer_by_account(Customer, username)
+        room_rental_form = dao.get_form_by_id(RoomRentalForm, int(rental_id))
 
-    room_rental_form.is_review = True
-    cmt = Comment(content=content, room_id=room_id, customer_id=customer.cus_id)
-    db.session.add(cmt)
-    db.session.commit()
+        room_rental_form.is_review = True
 
-    return jsonify({
-        'isSuccess': True
-    })
+        cmt = Comment(content=content, room_id=room_id, customer_id=customer.cus_id)
+        db.session.add(cmt)
+        db.session.commit()
+
+        return jsonify({
+            'isSuccess': True
+        })
+    elif request.method == 'GET':
+        room_id = request.args.get('roomId', type=int)
+        page = request.args.get('page', 1, type=int)
+
+        data = dao.get_comments(room_id, page)
+        comments = [
+            {
+                "id": c.id,
+                "content": c.content,
+                "customer": {
+                    "name": c.customer.name,
+                    "avatar": c.customer.avatar
+                },
+                "created_date": c.created_date.strftime("%Y-%m-%d %H:%M:%S")
+            }
+            for c in data["comments"]
+        ]
+
+        return jsonify({
+            "comments": comments,
+            "total": data["total"],
+            "page": data["page"],
+            "page_size": data["page_size"]
+        })
 
 
 @app.route('/account', methods=['GET'])
@@ -746,10 +774,6 @@ def account():
 @app.route('/account/edit', methods=['GET', 'POST'])
 def edit_account():
     user_id = session.get('_user_id')
-    user = dao.get_user_by_id(user_id)
-    user = db.session.query(User).options(joinedload(User.customer)).filter_by(id=user_id).first()
-    if '_user_id' not in session:
-        return redirect(url_for('login'))
 
     customer = Customer.query.filter_by(User_id=user_id).first()
 
@@ -757,39 +781,33 @@ def edit_account():
         username = request.form.get('username')
         email = request.form.get('email')
         phone = request.form.get('phone')
-        identification_card = request.form.get('identification_card')
-        customer_type_id = request.form.get('customer_type_id')
         gender = request.form.get('gender')
 
         # Update dữ liệu User
         current_user.username = username
         current_user.email = email
         current_user.phone = phone
-
         current_user.gender = gender
 
-        if customer:  # này chưa lưu được vô CSDL hmmm
-            customer.identification_card = identification_card
-            customer.customer_type_id = customer_type_id
         try:
             # Update vô CSDL
             db.session.commit()
-            flash("Thông tin tài khoản được cập nhật thành công!", "success")
+            flash("Thông tin tài khoản được cập nhật thành công!", "Cập Nhật Tài Khoản")
         except Exception as e:
             db.session.rollback()
-            flash(f"Có lỗi xảy ra: {str(e)}", "danger")
+            flash(f"Có lỗi xảy ra: {str(e)}", "Lỗi xảy ra")
         return redirect(url_for('account'))
 
-    return render_template('edit_account.html', user=user, customer=customer)
+    return render_template('edit_account.html', customer=customer)
 
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=cancel_form, trigger="interval", seconds=1)  # Chạy mỗi ngày
+    scheduler.add_job(func=cancel_form, trigger="interval", days=1)  # Chạy mỗi ngày
     scheduler.start()
 
 
 if __name__ == '__main__':
     from app import admin
-    # start_scheduler()
+    start_scheduler()
     app.run(debug=True)

@@ -16,7 +16,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="userCCCD" class="form-label">Identification number (CCCD):</label>
-                            <input type="text" class="form-control" id="userCCCD" name="cccd" value="{{ customer.identification_card }}">
+                            <input type="text" class="form-control" id="userCCCD" name="cccd" value="{{ customer.identification_card }}" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="userGender" class="form-label">Gender:</label>
@@ -28,7 +28,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="isForeigner" class="form-label">Foreigner?:</label>
-                            <select class="form-select" id="isForeigner" name="is_foreigner">
+                            <select class="form-select" id="isForeigner" name="is_foreigner" disabled>
                                 <option value="Không" {% if customer.customer_type_id == 1 %} selected {% endif %}>No</option>
                                 <option value="Có" {% if customer.customer_type_id == 2 %} selected {% endif %}>Yes</option>
                             </select>

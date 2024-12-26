@@ -183,7 +183,25 @@ def get_rented_room(customer_id):
 
 
 def load_comment(room_id):
-    return Comment.query.filter(Comment.room_id == room_id).order_by(desc(Comment.created_date)).all()
+    return Comment.query.filter(Comment.room_id == room_id).order_by(-Comment.id).all()
+
+
+def get_comments(room_id, page=1):
+    page_size = app.config["COMMENT_SIZE"]
+    total_comments = Comment.query.filter(Comment.room_id == room_id).count()
+    start = (page - 1) * page_size
+    comments = Comment.query.filter(Comment.room_id == room_id) \
+        .order_by(Comment.id.desc()) \
+        .offset(start) \
+        .limit(page_size) \
+        .all()
+
+    return {
+        "comments": comments,
+        "total": total_comments,
+        "page": page,
+        "page_size": page_size
+    }
 
 
 def cancel_form():
