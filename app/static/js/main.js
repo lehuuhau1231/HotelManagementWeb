@@ -28,14 +28,11 @@ function alert(title, message) {
 
 function validateDataDate(event, checkin, checkout) {
     event.preventDefault();
-    console.log("2")
     if (checkin && checkout) {
-        console.log("1")
         let checkinDate = new Date(checkin);
         let checkoutDate = new Date(checkout);
 
         if (checkinDate > checkoutDate) {
-            console.log("2")
             let popup = document.querySelector('.popup');
             popup.innerHTML = alert("Alert", "Please fill in both check-in and check-out dates.");
             var myModal = new bootstrap.Modal(document.getElementById('myModal'));

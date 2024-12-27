@@ -17,7 +17,7 @@ def check_room_availability(room_id, checkin, checkout):
     is_available = True
 
     for room in room_reservation:
-        if not ((checkin > room.check_out_date) or (checkout < room.check_in_date)):
+        if not ((checkin > room.check_out_date) or (checkout < room.check_in_date)):#checkin, checkout khong nam trong khoang phieu dat
             is_available = False
             break
 
@@ -43,6 +43,12 @@ def auth_user(username, password, role=None):
 
 def get_user_by_id(user_id):
     return User.query.get(user_id)
+
+
+def get_user_by_account(table, account):
+    account = account.strip()
+    return table.query.filter(
+        or_(table.username == account, table.email == account)).first()
 
 
 def get_customer_by_account(table, account):

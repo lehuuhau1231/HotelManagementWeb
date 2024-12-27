@@ -157,7 +157,7 @@ def forgot_password():
     if request.method.__eq__('POST'):
         if step == 1:
             account = request.form.get('account')
-            user = dao.get_customer_by_account(User, account)
+            user = dao.get_user_by_account(User, account)
             if user:
                 session['user_id'] = user.id
                 send_email(user)
@@ -815,7 +815,7 @@ def edit_account():
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=cancel_form, trigger="interval", days=1)  # Chạy mỗi ngày
+    scheduler.add_job(func=cancel_form, trigger="interval", days=1)
     scheduler.start()
 
 
