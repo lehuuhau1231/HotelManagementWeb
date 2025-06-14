@@ -1,5 +1,6 @@
 Hotel Management System – Python Flask + MySQL 
-📌 Mô tả đề tài
+
+📌 Mô tả đề tài :
 Hệ thống quản lý khách sạn hỗ trợ khách đặt phòng online hoặc đặt tại quầy. Cho phép lập phiếu thuê phòng, thanh toán hóa đơn, thống kê doanh thu và tỉ lệ sử dụng phòng theo tháng.
 Ứng dụng phát triển trên nền tảng web, sử dụng Python Flask cho backend và MySQL làm hệ quản trị cơ sở dữ liệu.
 
