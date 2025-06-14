@@ -23,7 +23,6 @@ Giao diện các chức năng chính được thiết kế bằng MockFlow.
 📄 [Tải báo cáo đầy đủ (Word)](https://github.com/lehuuhau1231/HotelManagementWeb/blob/main/BaoCao_QuanLyKhachSan_Nhom08.docx)
 
 🔧 Công nghệ sử dụng
-Công nghệ	Mục đích
 - Python Flask: Backend 
 - MySQL: Cơ sở dữ liệu
 - HTML/CSS + Bootstrap: Giao diện người dùng
