@@ -21,6 +21,7 @@ Mô hình hoá các đối tượng trong hệ thống.
 Chuyển từ sơ đồ lớp sang lược đồ CSDL quan hệ.
 7. Thiết kế giao diện
 Giao diện các chức năng chính được thiết kế bằng MockFlow.
+
 📄 [Tải báo cáo đầy đủ (Word)](https://github.com/lehuuhau1231/HotelManagementWeb/blob/main/BaoCao_QuanLyKhachSan_Nhom08.docx)
 
 🔧 Công nghệ sử dụng
